@@ -1,0 +1,45 @@
+configVersion: 1
+project: "rarime-orgs-svc"
+---
+image: builder
+from: golang:1.20-alpine
+docker:
+  WORKDIR: /go/src/github.com/rarimo/rarime-orgs-svc
+git:
+  - add: /
+    to: /go/src/github.com/rarimo/rarime-orgs-svc
+    stageDependencies:
+      install:
+        - go.mod
+        - go.sum
+      setup:
+        - "**/*"
+shell:
+  install:
+    - apk add git build-base
+    - export CGO_ENABLED=1
+    - export GO111MODULE=on
+    - export GOOS=linux
+    - cd /go/src/github.com/rarimo/rarime-orgs-svc
+    - go mod tidy
+    - go mod vendor
+  setup:
+    - export CGO_ENABLED=1
+    - export GO111MODULE=on
+    - export GOOS=linux
+    - cd /go/src/github.com/rarimo/rarime-orgs-svc
+    - go build -o /usr/local/bin/rarime-orgs-svc /go/src/github.com/rarimo/rarime-orgs-svc
+
+---
+image: service
+from: alpine:3.9
+docker:
+  ENTRYPOINT: rarime-orgs-svc
+shell:
+  setup:
+    - apk add --no-cache ca-certificates
+import:
+  - image: builder
+    add: /usr/local/bin/rarime-orgs-svc
+    to: /usr/local/bin/rarime-orgs-svc
+    after: setup
