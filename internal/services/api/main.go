@@ -25,15 +25,7 @@ func Run(ctx context.Context, cfg config.Config) {
 	)
 
 	r.Route("/v1", func(r chi.Router) {
-		r.Route("/proofs", func(r chi.Router) {
-			r.Group(func(r chi.Router) {
-				r.Use(handlers.AuthMiddleware())
-				r.Post("/", handlers.ProofCreate)
-			})
-			r.Route("/{id}", func(r chi.Router) {
-				r.Get("/", handlers.ProofByID)
-			})
-		})
+		r.Use(handlers.AuthMiddleware())
 	})
 
 	cfg.Log().WithFields(logan.F{

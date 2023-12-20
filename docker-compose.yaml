@@ -1,13 +1,13 @@
 version: "3.7"
 
 services:
-  link-db:
+  orgs-db:
     image: postgres:13
     restart: unless-stopped
     environment:
-      - POSTGRES_USER=link
-      - POSTGRES_PASSWORD=link
-      - POSTGRES_DB=link-db
+      - POSTGRES_USER=orgs
+      - POSTGRES_PASSWORD=orgs
+      - POSTGRES_DB=orgs-db
       - PGDATA=/pgdata
     ports:
       - "15432:5432"
@@ -15,4 +15,4 @@ services:
       - link-data:/pgdata
 
 volumes:
-  link-data:
+  orgs-data:

@@ -1,0 +1,12 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  id:
+    type: string
+    example: "3a798290-caf1-496a-a7e5-4db32551b13d"
+  type:
+    type: string
+    enum:
+      - organizations-create

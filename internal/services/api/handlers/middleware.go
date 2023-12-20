@@ -1,23 +1,23 @@
 package handlers
 
 import (
-	"context"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 	"net/http"
+	"strings"
 )
 
 func AuthMiddleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// TODO: implement auth and user id extraction
-			userID := r.Header.Get("Authorization")
-			if userID == "" {
+			token := r.Header.Get("Authorization")
+			if token == "" {
 				ape.Render(w, problems.Unauthorized())
 				return
 			}
 
-			r = r.WithContext(context.WithValue(r.Context(), userIDCtxKey, userID))
+			token = strings.TrimPrefix(token, "Bearer ")
+			// TODO: implement auth and user role extraction
 
 			next.ServeHTTP(w, r)
 		})

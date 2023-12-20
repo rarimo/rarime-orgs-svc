@@ -1,0 +1,46 @@
+allOf:
+  - $ref: '#/components/schemas/UserKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - role
+          - created_at
+          - updated_at
+        properties:
+          did:
+            type: string
+            description: The DID of the user
+            example: "did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg"
+          role:
+            allOf:
+              - $ref: '#/components/schemas/Enum'
+            description: >
+              The global role of the user.
+
+              `undefined` – Basic user role.
+
+              `owner` – The owner of some organization.
+
+              `superadmin` – The user with the highest privileges.
+            format: UserRole
+            enum:
+              - name: undefined
+                value: 0
+              - name: owner
+                value: 1
+              - name: superadmin
+                value: 2
+          created_at:
+            type: string
+            format: time.Time
+            description: The time (UTC) that the user was created in RFC3339 format
+            example: "2021-08-12T12:00:00Z"
+          updated_at:
+            type: string
+            format: time.Time
+            description: The time (UTC) that the user was updated in RFC3339 format
+            example: "2021-08-12T13:00:00Z"

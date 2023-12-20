@@ -1,0 +1,42 @@
+allOf:
+  - $ref: '#/components/schemas/RequestVerifyKey'
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        required:
+          - metadata
+          - role
+        type: object
+        properties:
+          metadata:
+            type: object
+            format: json.RawMessage
+            description: JSON object containing the metadata information of the request
+            example:
+              $ref: '#/components/examples/requestMetadata'
+          role:
+            allOf:
+              - $ref: '#/components/schemas/Enum'
+            description: >
+              The role of the group user.
+
+              `undefined` – The group user that was created but hasn't been verified yet by the organization owner or group admin or superadmin.
+
+              `employee` – The group user that was verified by the organization owner or group admin or superadmin by verifying verification request.
+
+              `admin` – The group user that was verified by the organization owner or group admin or superadmin as admin and has the ability to verify other group users.
+
+              `superadmin` – The group user that was verified by the superadmin as superadmin and has the ability to verify other group users and has the highest permissions in the group.
+            format: GroupUserRole
+            enum:
+              - name: undefined
+                value: 0
+              - name: employee
+                value: 1
+              - name: admin
+                value: 2
+              - name: superadmin
+                value: 3

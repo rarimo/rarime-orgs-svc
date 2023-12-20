@@ -1,0 +1,12 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  id:
+    type: string
+    example: "f302eac7-8015-4a71-a64d-b719c1a35df9"
+  type:
+    type: string
+    enum:
+      - group-users

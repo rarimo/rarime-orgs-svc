@@ -1,0 +1,30 @@
+allOf:
+  - $ref: '#/components/schemas/GroupKey'
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - org_id
+          - metadata
+          - rules
+        properties:
+          org_id:
+            type: string
+            description: The DID of the owner of the organization
+            example: "did:iden3:readonly:tM1QCJ7ytcbvLB7EFQhGsJPumc11DEE18gEvAzxE7"
+          metadata:
+            type: object
+            format: json.RawMessage
+            description: JSON object containing the metadata information of the group
+            example:
+              $ref: '#/components/examples/groupMetadata'
+          rules:
+            type: object
+            format: json.RawMessage
+            description: JSON object containing the rules of the group, which will be used to generate claims for the group members
+            example:
+              $ref: '#/components/examples/groupRules'

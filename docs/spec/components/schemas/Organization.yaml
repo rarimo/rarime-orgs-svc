@@ -1,0 +1,97 @@
+allOf:
+  - $ref: '#/components/schemas/OrganizationKey'
+  - type: object
+    required:
+      - attributes
+      - relationships
+    properties:
+      attributes:
+        type: object
+        required:
+          - owner
+          - domain
+          - metadata
+          - status
+          - issued_claims_count
+          - members_count
+          - created_at
+          - updated_at
+        properties:
+          did:
+            type: string
+            description: The DID of the organization, can be empty for the organizations with the status `unverified`
+            example: "did:iden3:readonly:tUDjWxnVJNi7t3FudukqrUcNwF5KVGoWgim5pp2jV"
+          owner:
+            type: string
+            description: The ID of the user who is owner of the organization
+            example: "81c32ef4-2878-4f86-9277-4c3c82913b87"
+          domain:
+            type: string
+            description: The domain of the organization
+            example: "https://organization-domain.com"
+          metadata:
+            type: object
+            format: json.RawMessage
+            description: JSON object containing the metadata information of the organization
+            example:
+              $ref: '#/components/examples/organizationMetadata'
+          status:
+            allOf:
+              - $ref: '#/components/schemas/Enum'
+            description: >
+              The status of the organization.
+
+              `unverified` – The organization was created by the user and hasn't been verified yet.
+
+              `verified` – The owner verified the organization's domain by adding code to the DNS record, verifying by the service, and creating the organization's DID issuer. As the result of the verification – the owner of the organization receives an "owner role claim".
+            format: OrganizationStatus
+            enum:
+              - name: unverified
+                value: 0
+              - name: verified
+                value: 1
+          verification_code:
+            type: string
+            description: The base64 encoded verification code that was by service to verify the domain of the organization. Can be empty for the organizations with the status `unverified`
+            example: "6A4GSfUNKwM9hHuZVg4aUw=="
+          issued_claims_count:
+            type: string
+            description: The number of claims issued by the organization
+            example: "0"
+          members_count:
+            type: string
+            description: The number of members in the organization
+            example: "1"
+          created_at:
+            type: string
+            format: time.Time
+            description: The time (UTC) that the organization was created in RFC3339 format
+            example: "2021-08-12T12:00:00Z"
+          updated_at:
+            type: string
+            format: time.Time
+            description: The time (UTC) that the organization was updated in RFC3339 format
+            example: "2021-08-12T13:00:00Z"
+      relationships:
+        type: object
+        required:
+          - owner
+        properties:
+          owner:
+            type: object
+            description: The owner of the organization
+            required:
+              - data
+            properties:
+              data:
+                $ref: '#/components/schemas/OwnerKey'
+          users:
+            type: object
+            description: The users of the organization
+            required:
+              - data
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserKey'

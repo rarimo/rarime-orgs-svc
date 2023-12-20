@@ -1,0 +1,12 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  id:
+    type: string
+    example: "778374e6-5c07-4268-9849-aeb095251105"
+  type:
+    type: string
+    enum:
+      - owners

@@ -5,8 +5,8 @@ required:
 properties:
   id:
     type: string
-    example: "1"
+    example: "6c8c1a69-177e-4754-a4e1-d4a7dbf561e8"
   type:
     type: string
     enum:
-      - proofs
+      - groups

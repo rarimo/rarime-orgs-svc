@@ -1,0 +1,55 @@
+allOf:
+  - $ref: '#/components/schemas/InvitationEmailKey'
+  - type: object
+    required:
+      - attributes
+      - relationships
+    properties:
+      attributes:
+        type: object
+        required:
+          - req_id
+          - org_id
+          - group_id
+          - email
+          - otp
+          - created_at
+        properties:
+          req_id:
+            type: string
+            description: The ID of the request that the invitation email is associated with
+            example: "e0bfcb75-0afb-46a5-988f-4ad9f46a0648"
+          org_id:
+            type: string
+            description: The ID of the organization that the group belongs to
+            example: "3a798290-caf1-496a-a7e5-4db32551b13d"
+          group_id:
+            type: string
+            description: The ID of the group
+            example: "6c8c1a69-177e-4754-a4e1-d4a7dbf561e8"
+          email:
+            type: string
+            description: The email address of the user that the invitation email is sent to
+            example: 'example@email.com'
+          otp:
+            type: string
+            description: The one-time password that the user must use to accept the invitation
+            example: '123456'
+          created_at:
+            type: string
+            format: time.Time
+            description: The time (UTC) that the email invitation was created in RFC3339 format
+            example: "2022-08-12T14:00:00Z"
+      relationships:
+        type: object
+        required:
+          - request
+        properties:
+          request:
+            type: object
+            description: The request that the invitation email is associated with
+            required:
+              - data
+            properties:
+              data:
+                $ref: '#/components/schemas/RequestKey'

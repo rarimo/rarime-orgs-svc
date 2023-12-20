@@ -1,0 +1,5 @@
+- schema: "https://schema.url"
+  metadata:
+    metadata1: "value1"
+  fields:
+    field1: "value1"

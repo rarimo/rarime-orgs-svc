@@ -1,0 +1,21 @@
+allOf:
+  - $ref: '#/components/schemas/InvitationAcceptEmailKey'
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        required:
+          - otp
+          - user_did
+        type: object
+        properties:
+          otp:
+            type: string
+            description: The one-time password that the user must use to accept the invitation
+            example: '123456'
+          user_did:
+            type: string
+            description: The DID of the user that the request is associated with, can be empty if user hasn't accepted the invitation yet
+            example: "did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg"

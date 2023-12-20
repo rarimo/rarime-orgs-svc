@@ -4,5 +4,5 @@ info:
   title: Rarime Organizations Service
   description: ''
 servers:
-  - url: 'https://api.demo.tokend.io'
+  - url: 'http://localhost:8000'
     description: rarime-orgs-svc

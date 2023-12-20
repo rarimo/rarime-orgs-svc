@@ -1,7 +1,7 @@
 in: query
 name: 'page[limit]'
 required: false
-example: 50
+example: "100"
 schema:
   type: integer
   minimum: 1

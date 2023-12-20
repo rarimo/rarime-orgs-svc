@@ -1,0 +1,98 @@
+get:
+  tags:
+    - Organizations
+  summary: Get an organization by ID
+  description: >
+    Returns an information about the particular organization.
+  operationId: organizationByID
+  parameters:
+    - in: path
+      name: 'id'
+      required: true
+      description: The ID of the organization
+      schema:
+        type: string
+        example: "3a798290-caf1-496a-a7e5-4db32551b13d"
+    - in: query
+      name: 'include'
+      description: The resources to include in the response, such as the organization owner and users
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - owner
+            - users
+  responses:
+    200:
+      description: OK
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            required:
+              - data
+              - included
+            properties:
+              data:
+                $ref: '#/components/schemas/Organization'
+              included:
+                type: array
+                items:
+                  oneOf:
+                    - $ref: '#/components/schemas/Owner'
+                    - $ref: '#/components/schemas/User'
+    400:
+      $ref: '#/components/responses/invalidParameter'
+    404:
+      $ref: '#/components/responses/notFound'
+    500:
+      $ref: '#/components/responses/internalError'
+
+post:
+  tags:
+    - Organizations
+  summary: Verify an organization
+  description: >
+    Verifies that code was added to the DNS record and if:
+    
+    - added - organization will become `verified`, organization issuer DID will be created and user will receive an "owner role" claim.
+    
+    - not added - organization will stay `unverified`
+    
+    Returns an information about the particular organization after the verify process.
+  operationId: verifyOrganizationByID
+  parameters:
+    - in: path
+      name: 'id'
+      required: true
+      description: The ID of the organization
+      schema:
+        type: string
+        example: "3a798290-caf1-496a-a7e5-4db32551b13d"
+  responses:
+    200:
+      description: OK
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            required:
+              - data
+              - included
+            properties:
+              data:
+                $ref: '#/components/schemas/Organization'
+              included:
+                type: array
+                items:
+                  oneOf:
+                    - $ref: '#/components/schemas/Owner'
+                    - $ref: '#/components/schemas/User'
+    400:
+      $ref: '#/components/responses/invalidParameter'
+    404:
+      $ref: '#/components/responses/notFound'
+    500:
+      $ref: '#/components/responses/internalError'

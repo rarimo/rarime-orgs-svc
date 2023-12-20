@@ -6,5 +6,5 @@ listener:
   addr: :8000
 
 db:
-  url: postgres://link:link@localhost:15432/link-db?sslmode=disable
+  url: postgres://orgs:orgs@localhost:15432/orgs-db?sslmode=disable
 
