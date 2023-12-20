@@ -12,7 +12,7 @@ services:
     ports:
       - "15432:5432"
     volumes:
-      - link-data:/pgdata
+      - orgs-data:/pgdata
 
 volumes:
   orgs-data:

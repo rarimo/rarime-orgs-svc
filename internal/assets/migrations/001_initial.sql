@@ -1,13 +1,8 @@
 -- +migrate Up
 drop function if exists trigger_set_updated_at cascade;
-create function trigger_set_updated_at() returns trigger
-    language plpgsql
-as
-$$
-begin
-    new.updated_at = now() at time zone 'utc'; return new;
-end;
-$$;
+CREATE FUNCTION trigger_set_updated_at() RETURNS trigger
+    LANGUAGE plpgsql
+AS $$ BEGIN NEW.updated_at = NOW() at time zone 'utc'; RETURN NEW; END; $$;
 
 create table if not exists users
 (

@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/rarimo/xo/types/xo"
+
+	"github.com/google/uuid"
 )
 
 // StringSlice is a slice of strings.
@@ -62,18 +64,81 @@ func (ss StringSlice) Value() (driver.Value, error) {
 		v[i] = `"` + strings.Replace(strings.Replace(s, `\`, `\\\`, -1), `"`, `\"`, -1) + `"`
 	}
 	return "{" + strings.Join(v, ",") + "}", nil
-} // GorpMigration represents a row from 'public.gorp_migrations'.
+} // EmailInvitation represents a row from 'public.email_invitations'.
+type EmailInvitation struct {
+	ID        uuid.UUID `db:"id" json:"id" structs:"-"`                          // id
+	ReqID     uuid.UUID `db:"req_id" json:"req_id" structs:"req_id"`             // req_id
+	OrgID     uuid.UUID `db:"org_id" json:"org_id" structs:"org_id"`             // org_id
+	GroupID   uuid.UUID `db:"group_id" json:"group_id" structs:"group_id"`       // group_id
+	Email     string    `db:"email" json:"email" structs:"email"`                // email
+	Otp       string    `db:"otp" json:"otp" structs:"otp"`                      // otp
+	CreatedAt time.Time `db:"created_at" json:"created_at" structs:"created_at"` // created_at
+
+}
+
+// GorpMigration represents a row from 'public.gorp_migrations'.
 type GorpMigration struct {
 	ID        string       `db:"id" json:"id" structs:"-"`                          // id
 	AppliedAt sql.NullTime `db:"applied_at" json:"applied_at" structs:"applied_at"` // applied_at
 
 }
 
-// Proof represents a row from 'public.proofs'.
-type Proof struct {
-	ID        int       `db:"id" json:"id" structs:"-"`                          // id
-	Creator   string    `db:"creator" json:"creator" structs:"creator"`          // creator
+// Group represents a row from 'public.groups'.
+type Group struct {
+	ID        uuid.UUID `db:"id" json:"id" structs:"-"`                          // id
+	OrgID     uuid.UUID `db:"org_id" json:"org_id" structs:"org_id"`             // org_id
+	Metadata  xo.Jsonb  `db:"metadata" json:"metadata" structs:"metadata"`       // metadata
+	Rules     xo.Jsonb  `db:"rules" json:"rules" structs:"rules"`                // rules
 	CreatedAt time.Time `db:"created_at" json:"created_at" structs:"created_at"` // created_at
-	Proof     xo.Jsonb  `db:"proof" json:"proof" structs:"proof"`                // proof
+
+}
+
+// GroupUser represents a row from 'public.group_users'.
+type GroupUser struct {
+	ID        uuid.UUID `db:"id" json:"id" structs:"-"`                          // id
+	GroupID   uuid.UUID `db:"group_id" json:"group_id" structs:"group_id"`       // group_id
+	UserID    uuid.UUID `db:"user_id" json:"user_id" structs:"user_id"`          // user_id
+	Role      int16     `db:"role" json:"role" structs:"role"`                   // role
+	CreatedAt time.Time `db:"created_at" json:"created_at" structs:"created_at"` // created_at
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at" structs:"updated_at"` // updated_at
+
+}
+
+// Organization represents a row from 'public.organizations'.
+type Organization struct {
+	ID                uuid.UUID      `db:"id" json:"id" structs:"-"`                                                     // id
+	Did               sql.NullString `db:"did" json:"did" structs:"did"`                                                 // did
+	Owner             uuid.UUID      `db:"owner" json:"owner" structs:"owner"`                                           // owner
+	Domain            string         `db:"domain" json:"domain" structs:"domain"`                                        // domain
+	Metadata          xo.Jsonb       `db:"metadata" json:"metadata" structs:"metadata"`                                  // metadata
+	Status            int16          `db:"status" json:"status" structs:"status"`                                        // status
+	VerificationCode  sql.NullString `db:"verification_code" json:"verification_code" structs:"verification_code"`       // verification_code
+	IssuedClaimsCount int64          `db:"issued_claims_count" json:"issued_claims_count" structs:"issued_claims_count"` // issued_claims_count
+	MembersCount      int            `db:"members_count" json:"members_count" structs:"members_count"`                   // members_count
+	CreatedAt         time.Time      `db:"created_at" json:"created_at" structs:"created_at"`                            // created_at
+	UpdatedAt         time.Time      `db:"updated_at" json:"updated_at" structs:"updated_at"`                            // updated_at
+
+}
+
+// Request represents a row from 'public.requests'.
+type Request struct {
+	ID        uuid.UUID     `db:"id" json:"id" structs:"-"`                          // id
+	OrgID     uuid.UUID     `db:"org_id" json:"org_id" structs:"org_id"`             // org_id
+	GroupID   uuid.UUID     `db:"group_id" json:"group_id" structs:"group_id"`       // group_id
+	UserID    uuid.NullUUID `db:"user_id" json:"user_id" structs:"user_id"`          // user_id
+	Metadata  xo.Jsonb      `db:"metadata" json:"metadata" structs:"metadata"`       // metadata
+	Status    int16         `db:"status" json:"status" structs:"status"`             // status
+	CreatedAt time.Time     `db:"created_at" json:"created_at" structs:"created_at"` // created_at
+	UpdatedAt time.Time     `db:"updated_at" json:"updated_at" structs:"updated_at"` // updated_at
+
+}
+
+// User represents a row from 'public.users'.
+type User struct {
+	ID        uuid.UUID `db:"id" json:"id" structs:"-"`                          // id
+	Did       string    `db:"did" json:"did" structs:"did"`                      // did
+	Role      int16     `db:"role" json:"role" structs:"role"`                   // role
+	CreatedAt time.Time `db:"created_at" json:"created_at" structs:"created_at"` // created_at
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at" structs:"updated_at"` // updated_at
 
 }

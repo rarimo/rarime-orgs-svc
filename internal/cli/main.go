@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/rarimo/rarime-orgs-svc/internal/services/api"
-	"gitlab.com/distributed_lab/logan"
+	"gitlab.com/distributed_lab/logan/v3"
 	"os"
 	"os/signal"
 	"sync"
