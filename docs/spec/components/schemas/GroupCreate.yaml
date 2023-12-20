@@ -1,5 +1,5 @@
 allOf:
-  - $ref: '#/components/schemas/GroupKey'
+  - $ref: '#/components/schemas/GroupCreateKey'
   - type: object
     x-go-is-request: true
     required:
