@@ -380,8 +380,7 @@
               "items": {
                 "type": "string",
                 "enum": [
-                  "group_users",
-                  "group_users.user"
+                  "group_users"
                 ]
               }
             }
@@ -557,8 +556,7 @@
               "items": {
                 "type": "string",
                 "enum": [
-                  "group_users",
-                  "group_users.user"
+                  "group_users"
                 ]
               }
             }
@@ -1438,8 +1436,7 @@
           {
             "type": "object",
             "required": [
-              "attributes",
-              "relationships"
+              "attributes"
             ],
             "properties": {
               "attributes": {
@@ -1500,26 +1497,6 @@
                     "format": "time.Time",
                     "description": "The time (UTC) that the group user was updated in RFC3339 format",
                     "example": "2021-08-15T13:00:00Z"
-                  }
-                }
-              },
-              "relationships": {
-                "type": "object",
-                "required": [
-                  "user"
-                ],
-                "properties": {
-                  "user": {
-                    "type": "object",
-                    "description": "The user that belongs to the group user",
-                    "required": [
-                      "data"
-                    ],
-                    "properties": {
-                      "data": {
-                        "$ref": "#/components/schemas/UserKey"
-                      }
-                    }
                   }
                 }
               }
