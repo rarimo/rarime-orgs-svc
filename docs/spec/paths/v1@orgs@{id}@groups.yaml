@@ -33,7 +33,6 @@ get:
           type: string
           enum:
             - group_users
-            - group_users.user
   responses:
     200:
       description: Success
