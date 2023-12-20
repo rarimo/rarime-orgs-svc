@@ -1,0 +1,1719 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Rarime Organizations Service
+  description: ''
+servers:
+  - url: 'http://localhost:8000'
+    description: rarime-orgs-svc
+paths:
+  /v1/orgs:
+    get:
+      tags:
+        - Organizations
+      summary: Organizations list
+      description: |
+        Returns list of organizations registered in the service.
+      operationId: getOrgs
+      parameters:
+        - in: query
+          name: 'filter[owner]'
+          description: Filter organizations by owner
+          required: false
+          schema:
+            type: string
+            example: 778374e6-5c07-4268-9849-aeb095251105
+        - in: query
+          name: 'filter[user_did]'
+          description: Filter organizations by user DID
+          required: false
+          schema:
+            type: string
+            example: 'did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg'
+        - in: query
+          name: 'filter[status]'
+          description: Filter organizations by status
+          required: false
+          schema:
+            type: string
+            enum:
+              - unverified
+              - verified
+        - $ref: '#/components/parameters/pageLimitParam'
+        - $ref: '#/components/parameters/pageOrderParam'
+        - $ref: '#/components/parameters/pageCursorParam'
+        - in: query
+          name: include
+          description: 'The resources to include in the response, such as the organization owner, users, etc.'
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - owner
+                - users
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - included
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Organization'
+                  included:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/Owner'
+                        - $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '500':
+          $ref: '#/components/responses/internalError'
+    post:
+      tags:
+        - Organizations
+      summary: Create an organization
+      description: |
+        Returns created organization.
+      operationId: createOrg
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              required:
+                - data
+              properties:
+                data:
+                  $ref: '#/components/schemas/OrganizationCreate'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - included
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Organization'
+                  included:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/Owner'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '500':
+          $ref: '#/components/responses/internalError'
+  '/v1/orgs/{id}':
+    get:
+      tags:
+        - Organizations
+      summary: Get an organization by ID
+      description: |
+        Returns an information about the particular organization.
+      operationId: organizationByID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the organization
+          schema:
+            type: string
+            example: 3a798290-caf1-496a-a7e5-4db32551b13d
+        - in: query
+          name: include
+          description: 'The resources to include in the response, such as the organization owner and users'
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - owner
+                - users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - included
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Organization'
+                  included:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/Owner'
+                        - $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalError'
+    post:
+      tags:
+        - Organizations
+      summary: Verify an organization
+      description: |
+        Verifies that code was added to the DNS record and if:
+        - added - organization will become `verified`, organization issuer DID will be created and user will receive an "owner role" claim.
+        - not added - organization will stay `unverified`
+        Returns an information about the particular organization after the verify process.
+      operationId: verifyOrganizationByID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the organization
+          schema:
+            type: string
+            example: 3a798290-caf1-496a-a7e5-4db32551b13d
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - included
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Organization'
+                  included:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/Owner'
+                        - $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalError'
+  '/v1/orgs/{id}/groups':
+    get:
+      tags:
+        - Groups
+      summary: Groups list
+      description: |
+        Returns list of groups registered in the service.
+      operationId: getGroups
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the organization
+          schema:
+            type: string
+            example: 3a798290-caf1-496a-a7e5-4db32551b13d
+        - in: query
+          name: 'filter[org_id]'
+          description: Filter groups by organization ID
+          required: false
+          schema:
+            type: string
+            example: 3a798290-caf1-496a-a7e5-4db32551b13d
+        - $ref: '#/components/parameters/pageLimitParam'
+        - $ref: '#/components/parameters/pageOrderParam'
+        - $ref: '#/components/parameters/pageCursorParam'
+        - in: query
+          name: include
+          description: 'The resources to include in the response, such as the group users, etc.'
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - group_users
+                - group_users.user
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - included
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Group'
+                  included:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/GroupUser'
+                        - $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '500':
+          $ref: '#/components/responses/internalError'
+    post:
+      tags:
+        - Groups
+      summary: Create a group
+      security:
+        - Bearer: []
+      description: |
+        Requires JWT token with the organization owner or superadmin permissions.
+
+        Returns creates group.
+      operationId: createGroup
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the organization
+          schema:
+            type: string
+            example: 3a798290-caf1-496a-a7e5-4db32551b13d
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              required:
+                - data
+              properties:
+                data:
+                  $ref: '#/components/schemas/GroupCreate'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - included
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Group'
+                  included:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/GroupUser'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '401':
+          $ref: '#/components/responses/invalidAuth'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalError'
+  '/v1/orgs/{id}/groups/{group_id}':
+    get:
+      tags:
+        - Groups
+      summary: Get a group by ID
+      description: |
+        Returns an information about the particular group.
+      operationId: groupByID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the organization
+          schema:
+            type: string
+            example: 3a798290-caf1-496a-a7e5-4db32551b13d
+        - in: path
+          name: group_id
+          required: true
+          description: The ID of the group
+          schema:
+            type: string
+            example: 6c8c1a69-177e-4754-a4e1-d4a7dbf561e8
+        - in: query
+          name: include
+          description: 'The resources to include in the response, such as the group users'
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - group_users
+                - group_users.user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - included
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Organization'
+                  included:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/GroupUser'
+                        - $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalError'
+  '/v1/orgs/{id}/groups/{group_id}/emails':
+    post:
+      tags:
+        - Email Invitations
+      summary: Create an email invitation to the group
+      security:
+        - Bearer: []
+      description: |
+        Requires JWT token with the organization owner or group admin or superadmin permissions.
+
+        Creates a `request` entry with corresponding list of schemas in attributes generated by the service.
+
+        Returns created email invitation.
+      operationId: createInvitationEmail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the organization
+          schema:
+            type: string
+            example: 3a798290-caf1-496a-a7e5-4db32551b13d
+        - in: path
+          name: group_id
+          required: true
+          description: The ID of the group
+          schema:
+            type: string
+            example: 6c8c1a69-177e-4754-a4e1-d4a7dbf561e8
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              required:
+                - data
+              properties:
+                data:
+                  $ref: '#/components/schemas/InvitationCreateEmail'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - included
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InvitationEmail'
+                  included:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/Request'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '401':
+          $ref: '#/components/responses/invalidAuth'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalError'
+    patch:
+      tags:
+        - Email Invitations
+      summary: Accept an email invitation to the group
+      description: |
+        Submit OTP code to register the user email and connect it with user DID. 
+        If OTP is correct - claim for user email will be issued and user will be saved to the service. 
+        After that use becomes able to authenticate for executing requests with JWT. 
+        Also, corresponding request entry will be filled with user DID. Also claim for `undefined` role will be issued.
+
+        Returns accepted email invitation.
+      operationId: acceptInvitationEmail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the organization
+          schema:
+            type: string
+            example: 3a798290-caf1-496a-a7e5-4db32551b13d
+        - in: path
+          name: group_id
+          required: true
+          description: The ID of the group
+          schema:
+            type: string
+            example: 6c8c1a69-177e-4754-a4e1-d4a7dbf561e8
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              required:
+                - data
+              properties:
+                data:
+                  $ref: '#/components/schemas/InvitationAcceptEmail'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - included
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InvitationEmail'
+                  included:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/Request'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalError'
+  '/v1/orgs/{id}/groups/{group_id}/requests':
+    get:
+      tags:
+        - Requests
+      summary: Requests list
+      security:
+        - Bearer: []
+      description: |
+        Returns list of requests associated with the provided group and organization.
+      operationId: getRequests
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the organization
+          schema:
+            type: string
+            example: 3a798290-caf1-496a-a7e5-4db32551b13d
+        - in: path
+          name: group_id
+          required: true
+          description: The ID of the group
+          schema:
+            type: string
+            example: 6c8c1a69-177e-4754-a4e1-d4a7dbf561e8
+        - in: query
+          name: 'filter[user_did]'
+          required: false
+          description: |
+            Filter requests for the specified user DID.
+
+            Requires JWT token for specified user with any role but that is in the users list for specified organization.
+          schema:
+            type: string
+            example: 'did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg'
+        - in: query
+          name: 'filter[status]'
+          required: false
+          description: |
+            Filter requests by status.
+
+            Requires JWT token with the organization owner or group admin or superadmin permissions or JWT token for 
+            specified user with any role but that is in the users list for specified organization.
+          schema:
+            type: string
+            enum:
+              - created
+              - filled
+              - approved
+              - rejected
+              - submitted
+        - $ref: '#/components/parameters/pageLimitParam'
+        - $ref: '#/components/parameters/pageOrderParam'
+        - $ref: '#/components/parameters/pageCursorParam'
+        - in: query
+          name: include
+          description: 'The resources to include in the response, such as the organization, group.'
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - organization
+                - group
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - included
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Request'
+                  included:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/Organization'
+                        - $ref: '#/components/schemas/Group'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '401':
+          $ref: '#/components/responses/invalidAuth'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalError'
+  '/v1/orgs/{id}/groups/{group_id}/requests/{req_id}':
+    patch:
+      tags:
+        - Requests
+      summary: Fill the request
+      operationId: fillRequestByID
+      security:
+        - Bearer: []
+      description: |
+        Fill the request with the required information for the particular group and organization.
+
+        Requires JWT token for specified user with any role but that is in the users list for specified organization.
+
+        Returns an information about the particular request after the fill process.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the organization
+          schema:
+            type: string
+            example: 3a798290-caf1-496a-a7e5-4db32551b13d
+        - in: path
+          name: group_id
+          required: true
+          description: The ID of the group
+          schema:
+            type: string
+            example: 6c8c1a69-177e-4754-a4e1-d4a7dbf561e8
+        - in: path
+          name: req_id
+          required: true
+          description: The ID of the request
+          schema:
+            type: string
+            example: 9d6a5063-684e-4ab4-b49a-82cdceadf63f
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              required:
+                - data
+              properties:
+                data:
+                  $ref: '#/components/schemas/RequestFill'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - included
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Request'
+                  included:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/Organization'
+                        - $ref: '#/components/schemas/Group'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '401':
+          $ref: '#/components/responses/invalidAuth'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalError'
+    post:
+      tags:
+        - Requests
+      summary: Verify the request
+      operationId: verifyRequestByID
+      security:
+        - Bearer: []
+      description: |
+        Verify the filled request for the particular group and organization.
+
+        Requires JWT token with the organization owner or group admin or superadmin permissions.
+
+        After execution of this request - all corresponding claims will be issued (based on attributes), including role claim.
+
+        Returns an information about the particular request after the verify process.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the organization
+          schema:
+            type: string
+            example: 3a798290-caf1-496a-a7e5-4db32551b13d
+        - in: path
+          name: group_id
+          required: true
+          description: The ID of the group
+          schema:
+            type: string
+            example: 6c8c1a69-177e-4754-a4e1-d4a7dbf561e8
+        - in: path
+          name: req_id
+          required: true
+          description: The ID of the request
+          schema:
+            type: string
+            example: 9d6a5063-684e-4ab4-b49a-82cdceadf63f
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              required:
+                - data
+              properties:
+                data:
+                  $ref: '#/components/schemas/RequestVerify'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - included
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Request'
+                  included:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/Organization'
+                        - $ref: '#/components/schemas/Group'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '401':
+          $ref: '#/components/responses/invalidAuth'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalError'
+  '/v1/orgs/{id}/verification-code':
+    get:
+      tags:
+        - Organizations
+      summary: Get a verification code for particular organization by ID
+      description: |
+        Returns a verification code for particular organization that should be added to the TXT DNS record in the “rarimo.” subdomain of provided organization domain.
+      operationId: verificationCodeByOrganizationID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the organization
+          schema:
+            type: string
+            example: 3a798290-caf1-496a-a7e5-4db32551b13d
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/VerificationCodeKey'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalError'
+components:
+  schemas:
+    Enum:
+      type: object
+      required:
+        - value
+        - name
+      properties:
+        value:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: General
+    Errors:
+      description: 'Standard JSON:API error'
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          description: Non empty array of errors occurred during request processing
+          items:
+            type: object
+            required:
+              - title
+              - status
+            properties:
+              title:
+                type: string
+                description: 'Title is a short, human-readable summary of the problem'
+                example: Bad Request
+              detail:
+                type: string
+                description: Detail is a human-readable explanation specific to this occurrence of the problem
+                example: Request body was expected
+              status:
+                type: integer
+                description: Status is the HTTP status code applicable to this problem
+                example: 400
+                enum:
+                  - 400
+                  - 401
+                  - 403
+                  - 404
+                  - 409
+                  - 500
+    Group:
+      allOf:
+        - $ref: '#/components/schemas/GroupKey'
+        - type: object
+          required:
+            - attributes
+            - relationships
+          properties:
+            attributes:
+              type: object
+              required:
+                - org_id
+                - metadata
+                - rules
+                - created_at
+              properties:
+                org_id:
+                  type: string
+                  description: The ID of the organization that the group belongs to
+                  example: 3a798290-caf1-496a-a7e5-4db32551b13d
+                metadata:
+                  type: object
+                  format: json.RawMessage
+                  description: JSON object containing the metadata information of the group
+                  example:
+                    $ref: '#/components/examples/groupMetadata'
+                rules:
+                  type: object
+                  format: json.RawMessage
+                  description: 'JSON object containing the rules of the group, which will be used to generate claims for the group members'
+                  example:
+                    $ref: '#/components/examples/groupRules'
+                created_at:
+                  type: string
+                  format: time.Time
+                  description: The time (UTC) that the group was created in RFC3339 format
+                  example: '2021-08-12T14:00:00Z'
+            relationships:
+              type: object
+              required:
+                - group_users
+              properties:
+                group_users:
+                  type: object
+                  description: The users of the group
+                  required:
+                    - data
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/GroupUserKey'
+    GroupCreate:
+      allOf:
+        - $ref: '#/components/schemas/GroupKey'
+        - type: object
+          x-go-is-request: true
+          required:
+            - attributes
+          properties:
+            attributes:
+              type: object
+              required:
+                - org_id
+                - metadata
+                - rules
+              properties:
+                org_id:
+                  type: string
+                  description: The DID of the owner of the organization
+                  example: 'did:iden3:readonly:tM1QCJ7ytcbvLB7EFQhGsJPumc11DEE18gEvAzxE7'
+                metadata:
+                  type: object
+                  format: json.RawMessage
+                  description: JSON object containing the metadata information of the group
+                  example:
+                    $ref: '#/components/examples/groupMetadata'
+                rules:
+                  type: object
+                  format: json.RawMessage
+                  description: 'JSON object containing the rules of the group, which will be used to generate claims for the group members'
+                  example:
+                    $ref: '#/components/examples/groupRules'
+    GroupCreateKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 6c8c1a69-177e-4754-a4e1-d4a7dbf561e8
+        type:
+          type: string
+          enum:
+            - groups-create
+    GroupKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 6c8c1a69-177e-4754-a4e1-d4a7dbf561e8
+        type:
+          type: string
+          enum:
+            - groups
+    GroupUser:
+      allOf:
+        - $ref: '#/components/schemas/GroupUserKey'
+        - type: object
+          required:
+            - attributes
+            - relationships
+          properties:
+            attributes:
+              type: object
+              required:
+                - group_id
+                - user_id
+                - role
+                - created_at
+                - updated_at
+              properties:
+                group_id:
+                  type: string
+                  description: The ID of the group that the user belongs to
+                  example: 6c8c1a69-177e-4754-a4e1-d4a7dbf561e8
+                user_id:
+                  type: string
+                  description: The ID of the user that belongs to the group user
+                  example: 81c32ef4-2878-4f86-9277-4c3c82913b87
+                role:
+                  allOf:
+                    - $ref: '#/components/schemas/Enum'
+                  description: |
+                    The role of the group user.
+                    `undefined` – The group user that was created but hasn't been verified yet by the organization owner or group admin or superadmin.
+                    `employee` – The group user that was verified by the organization owner or group admin or superadmin by verifying verification request.
+                    `admin` – The group user that was verified by the organization owner or group admin or superadmin as admin and has the ability to verify other group users.
+                    `superadmin` – The group user that was verified by the superadmin as superadmin and has the ability to verify other group users and has the highest permissions in the group.
+                  format: GroupUserRole
+                  enum:
+                    - name: undefined
+                      value: 0
+                    - name: employee
+                      value: 1
+                    - name: admin
+                      value: 2
+                    - name: superadmin
+                      value: 3
+                created_at:
+                  type: string
+                  format: time.Time
+                  description: The time (UTC) that the group user was created in RFC3339 format
+                  example: '2021-08-13T14:00:00Z'
+                updated_at:
+                  type: string
+                  format: time.Time
+                  description: The time (UTC) that the group user was updated in RFC3339 format
+                  example: '2021-08-15T13:00:00Z'
+            relationships:
+              type: object
+              required:
+                - user
+              properties:
+                user:
+                  type: object
+                  description: The user that belongs to the group user
+                  required:
+                    - data
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/UserKey'
+    GroupUserKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: f302eac7-8015-4a71-a64d-b719c1a35df9
+        type:
+          type: string
+          enum:
+            - group-users
+    InvitationAcceptEmail:
+      allOf:
+        - $ref: '#/components/schemas/InvitationAcceptEmailKey'
+        - type: object
+          x-go-is-request: true
+          required:
+            - attributes
+          properties:
+            attributes:
+              required:
+                - otp
+                - user_did
+              type: object
+              properties:
+                otp:
+                  type: string
+                  description: The one-time password that the user must use to accept the invitation
+                  example: '123456'
+                user_did:
+                  type: string
+                  description: 'The DID of the user that the request is associated with, can be empty if user hasn''t accepted the invitation yet'
+                  example: 'did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg'
+    InvitationAcceptEmailKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 46618778-a1c2-42dd-8b2b-898d0300bc35
+        type:
+          type: string
+          enum:
+            - invitations-accept-email
+    InvitationCreateEmail:
+      allOf:
+        - $ref: '#/components/schemas/InvitationCreateEmailKey'
+        - type: object
+          x-go-is-request: true
+          required:
+            - attributes
+          properties:
+            attributes:
+              required:
+                - email
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The email address of the user that the invitation email is sent to
+                  example: example@email.com
+                rules:
+                  type: object
+                  format: json.RawMessage
+                  description: JSON object containing the rules of the group with the predefined values
+                  example:
+                    $ref: '#/components/examples/predefinedRules'
+    InvitationCreateEmailKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 46618778-a1c2-42dd-8b2b-898d0300bc35
+        type:
+          type: string
+          enum:
+            - invitations-create-email
+    InvitationEmail:
+      allOf:
+        - $ref: '#/components/schemas/InvitationEmailKey'
+        - type: object
+          required:
+            - attributes
+            - relationships
+          properties:
+            attributes:
+              type: object
+              required:
+                - req_id
+                - org_id
+                - group_id
+                - email
+                - otp
+                - created_at
+              properties:
+                req_id:
+                  type: string
+                  description: The ID of the request that the invitation email is associated with
+                  example: e0bfcb75-0afb-46a5-988f-4ad9f46a0648
+                org_id:
+                  type: string
+                  description: The ID of the organization that the group belongs to
+                  example: 3a798290-caf1-496a-a7e5-4db32551b13d
+                group_id:
+                  type: string
+                  description: The ID of the group
+                  example: 6c8c1a69-177e-4754-a4e1-d4a7dbf561e8
+                email:
+                  type: string
+                  description: The email address of the user that the invitation email is sent to
+                  example: example@email.com
+                otp:
+                  type: string
+                  description: The one-time password that the user must use to accept the invitation
+                  example: '123456'
+                created_at:
+                  type: string
+                  format: time.Time
+                  description: The time (UTC) that the email invitation was created in RFC3339 format
+                  example: '2022-08-12T14:00:00Z'
+            relationships:
+              type: object
+              required:
+                - request
+              properties:
+                request:
+                  type: object
+                  description: The request that the invitation email is associated with
+                  required:
+                    - data
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/RequestKey'
+    InvitationEmailKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 46618778-a1c2-42dd-8b2b-898d0300bc35
+        type:
+          type: string
+          enum:
+            - invitations-email
+    Organization:
+      allOf:
+        - $ref: '#/components/schemas/OrganizationKey'
+        - type: object
+          required:
+            - attributes
+            - relationships
+          properties:
+            attributes:
+              type: object
+              required:
+                - owner
+                - domain
+                - metadata
+                - status
+                - issued_claims_count
+                - members_count
+                - created_at
+                - updated_at
+              properties:
+                did:
+                  type: string
+                  description: 'The DID of the organization, can be empty for the organizations with the status `unverified`'
+                  example: 'did:iden3:readonly:tUDjWxnVJNi7t3FudukqrUcNwF5KVGoWgim5pp2jV'
+                owner:
+                  type: string
+                  description: The ID of the user who is owner of the organization
+                  example: 81c32ef4-2878-4f86-9277-4c3c82913b87
+                domain:
+                  type: string
+                  description: The domain of the organization
+                  example: 'https://organization-domain.com'
+                metadata:
+                  type: object
+                  format: json.RawMessage
+                  description: JSON object containing the metadata information of the organization
+                  example:
+                    $ref: '#/components/examples/organizationMetadata'
+                status:
+                  allOf:
+                    - $ref: '#/components/schemas/Enum'
+                  description: |
+                    The status of the organization.
+                    `unverified` – The organization was created by the user and hasn't been verified yet.
+                    `verified` – The owner verified the organization's domain by adding code to the DNS record, verifying by the service, and creating the organization's DID issuer. As the result of the verification – the owner of the organization receives an "owner role claim".
+                  format: OrganizationStatus
+                  enum:
+                    - name: unverified
+                      value: 0
+                    - name: verified
+                      value: 1
+                verification_code:
+                  type: string
+                  description: The base64 encoded verification code that was by service to verify the domain of the organization. Can be empty for the organizations with the status `unverified`
+                  example: 6A4GSfUNKwM9hHuZVg4aUw==
+                issued_claims_count:
+                  type: string
+                  description: The number of claims issued by the organization
+                  example: '0'
+                members_count:
+                  type: string
+                  description: The number of members in the organization
+                  example: '1'
+                created_at:
+                  type: string
+                  format: time.Time
+                  description: The time (UTC) that the organization was created in RFC3339 format
+                  example: '2021-08-12T12:00:00Z'
+                updated_at:
+                  type: string
+                  format: time.Time
+                  description: The time (UTC) that the organization was updated in RFC3339 format
+                  example: '2021-08-12T13:00:00Z'
+            relationships:
+              type: object
+              required:
+                - owner
+              properties:
+                owner:
+                  type: object
+                  description: The owner of the organization
+                  required:
+                    - data
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/OwnerKey'
+                users:
+                  type: object
+                  description: The users of the organization
+                  required:
+                    - data
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/UserKey'
+    OrganizationCreate:
+      allOf:
+        - $ref: '#/components/schemas/OrganizationCreateKey'
+        - type: object
+          x-go-is-request: true
+          required:
+            - attributes
+          properties:
+            attributes:
+              required:
+                - owner_did
+                - domain
+                - metadata
+              type: object
+              properties:
+                owner_did:
+                  type: string
+                  description: The DID of the owner of the organization
+                  example: 'did:iden3:readonly:tM1QCJ7ytcbvLB7EFQhGsJPumc11DEE18gEvAzxE7'
+                domain:
+                  type: string
+                  example: 'https://organization-domain.com'
+                  description: The domain of the organization
+                metadata:
+                  type: object
+                  format: json.RawMessage
+                  description: JSON object containing the metadata information of the organization
+                  example:
+                    $ref: '#/components/examples/organizationMetadata'
+    OrganizationCreateKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 3a798290-caf1-496a-a7e5-4db32551b13d
+        type:
+          type: string
+          enum:
+            - organizations-create
+    OrganizationKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 3a798290-caf1-496a-a7e5-4db32551b13d
+        type:
+          type: string
+          enum:
+            - organizations
+    Owner:
+      allOf:
+        - $ref: '#/components/schemas/OwnerKey'
+        - type: object
+          required:
+            - attributes
+          properties:
+            attributes:
+              type: object
+              required:
+                - role
+                - created_at
+                - updated_at
+              properties:
+                did:
+                  type: string
+                  description: The DID of the user
+                  example: 'did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg'
+                role:
+                  allOf:
+                    - $ref: '#/components/schemas/Enum'
+                  description: |
+                    The global role of the user.
+                    `undefined` – Basic user role.
+                    `owner` – The owner of some organization.
+                    `superadmin` – The user with the highest privileges.
+                  format: UserRole
+                  enum:
+                    - name: undefined
+                      value: 0
+                    - name: owner
+                      value: 1
+                    - name: superadmin
+                      value: 2
+                created_at:
+                  type: string
+                  format: time.Time
+                  description: The time (UTC) that the user was created in RFC3339 format
+                  example: '2021-08-12T12:00:00Z'
+                updated_at:
+                  type: string
+                  format: time.Time
+                  description: The time (UTC) that the user was updated in RFC3339 format
+                  example: '2021-08-12T13:00:00Z'
+    OwnerKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 778374e6-5c07-4268-9849-aeb095251105
+        type:
+          type: string
+          enum:
+            - owners
+    Request:
+      allOf:
+        - $ref: '#/components/schemas/RequestKey'
+        - type: object
+          required:
+            - attributes
+            - relationships
+          properties:
+            attributes:
+              type: object
+              required:
+                - org_id
+                - group_id
+                - metadata
+                - status
+                - created_at
+                - updated_at
+              properties:
+                org_id:
+                  type: string
+                  description: The ID of the organization that the group belongs to
+                  example: 3a798290-caf1-496a-a7e5-4db32551b13d
+                group_id:
+                  type: string
+                  description: The ID of the group
+                  example: 6c8c1a69-177e-4754-a4e1-d4a7dbf561e8
+                user_did:
+                  type: string
+                  description: 'The DID of the user that the request is associated with, can be empty if user hasn''t accepted the invitation yet'
+                  example: 'did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg'
+                metadata:
+                  type: object
+                  format: json.RawMessage
+                  description: JSON object containing the metadata information of the request
+                  example:
+                    $ref: '#/components/examples/requestMetadata'
+                status:
+                  allOf:
+                    - $ref: '#/components/schemas/Enum'
+                  description: |
+                    The request status.
+                    `created` – The request was created by the group admin or organization owner or superadmin and hasn't been filled yet by the user.
+                    `filled` – The user filled the request but it hasn't been approved or rejected yet by the group admin or organization owner or superadmin.
+                    `approved` – The request was approved by the group admin or organization owner or superadmin.
+                    `rejected` – The request was rejected by the group admin or organization owner or superadmin.
+                    `submitted` – The request becomes submitted when claims were issues for the all fields in attributes and was submitted to the chain by the issuer service.
+                  format: RequestStatus
+                  enum:
+                    - name: created
+                      value: 0
+                    - name: filled
+                      value: 1
+                    - name: approved
+                      value: 2
+                    - name: rejected
+                      value: 3
+                    - name: submitted
+                      value: 4
+                created_at:
+                  type: string
+                  format: time.Time
+                  description: The time (UTC) that the group was created in RFC3339 format
+                  example: '2021-08-12T14:00:00Z'
+                updated_at:
+                  type: string
+                  format: time.Time
+                  description: The time (UTC) that the organization was updated in RFC3339 format
+                  example: '2021-08-12T13:00:00Z'
+            relationships:
+              type: object
+              required:
+                - organization
+                - group
+              properties:
+                organization:
+                  type: object
+                  description: The organization that the group belongs to
+                  required:
+                    - data
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/OrganizationKey'
+                group:
+                  type: object
+                  description: The group that the request is associated with
+                  required:
+                    - data
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/GroupKey'
+    RequestFill:
+      allOf:
+        - $ref: '#/components/schemas/RequestFillKey'
+        - type: object
+          x-go-is-request: true
+          required:
+            - attributes
+          properties:
+            attributes:
+              required:
+                - metadata
+              type: object
+              properties:
+                metadata:
+                  type: object
+                  format: json.RawMessage
+                  description: JSON object containing the metadata information of the request
+                  example:
+                    $ref: '#/components/examples/requestMetadata'
+    RequestFillKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 9d6a5063-684e-4ab4-b49a-82cdceadf63f
+        type:
+          type: string
+          enum:
+            - requests-fill
+    RequestKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 9d6a5063-684e-4ab4-b49a-82cdceadf63f
+        type:
+          type: string
+          enum:
+            - requests
+    RequestVerify:
+      allOf:
+        - $ref: '#/components/schemas/RequestVerifyKey'
+        - type: object
+          x-go-is-request: true
+          required:
+            - attributes
+          properties:
+            attributes:
+              required:
+                - metadata
+                - role
+              type: object
+              properties:
+                metadata:
+                  type: object
+                  format: json.RawMessage
+                  description: JSON object containing the metadata information of the request
+                  example:
+                    $ref: '#/components/examples/requestMetadata'
+                role:
+                  allOf:
+                    - $ref: '#/components/schemas/Enum'
+                  description: |
+                    The role of the group user.
+                    `undefined` – The group user that was created but hasn't been verified yet by the organization owner or group admin or superadmin.
+                    `employee` – The group user that was verified by the organization owner or group admin or superadmin by verifying verification request.
+                    `admin` – The group user that was verified by the organization owner or group admin or superadmin as admin and has the ability to verify other group users.
+                    `superadmin` – The group user that was verified by the superadmin as superadmin and has the ability to verify other group users and has the highest permissions in the group.
+                  format: GroupUserRole
+                  enum:
+                    - name: undefined
+                      value: 0
+                    - name: employee
+                      value: 1
+                    - name: admin
+                      value: 2
+                    - name: superadmin
+                      value: 3
+    RequestVerifyKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 9d6a5063-684e-4ab4-b49a-82cdceadf63f
+        type:
+          type: string
+          enum:
+            - requests-verify
+    User:
+      allOf:
+        - $ref: '#/components/schemas/UserKey'
+        - type: object
+          required:
+            - attributes
+          properties:
+            attributes:
+              type: object
+              required:
+                - role
+                - created_at
+                - updated_at
+              properties:
+                did:
+                  type: string
+                  description: The DID of the user
+                  example: 'did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg'
+                role:
+                  allOf:
+                    - $ref: '#/components/schemas/Enum'
+                  description: |
+                    The global role of the user.
+                    `undefined` – Basic user role.
+                    `owner` – The owner of some organization.
+                    `superadmin` – The user with the highest privileges.
+                  format: UserRole
+                  enum:
+                    - name: undefined
+                      value: 0
+                    - name: owner
+                      value: 1
+                    - name: superadmin
+                      value: 2
+                created_at:
+                  type: string
+                  format: time.Time
+                  description: The time (UTC) that the user was created in RFC3339 format
+                  example: '2021-08-12T12:00:00Z'
+                updated_at:
+                  type: string
+                  format: time.Time
+                  description: The time (UTC) that the user was updated in RFC3339 format
+                  example: '2021-08-12T13:00:00Z'
+    UserKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 81c32ef4-2878-4f86-9277-4c3c82913b87
+        type:
+          type: string
+          enum:
+            - users
+    VerificationCodeKey:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: 6A4GSfUNKwM9hHuZVg4aUw==
+        type:
+          type: string
+          enum:
+            - verification-codes
+  responses:
+    internalError:
+      description: Internal server error
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    invalidAuth:
+      description: You must provide a valid authorization params.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    invalidParameter:
+      description: One of the parameters is invalid. Refer to the response body for details.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    notFound:
+      description: Requested resource does not exist.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+  parameters:
+    pageCursorParam:
+      in: query
+      name: 'page[cursor]'
+      required: false
+      description: 'A pointer to start the page of results with. To get a link to the next page, use the URL in the `links.next` field in the response, which includes the value for this parameter.'
+      example: MTA6MjE=
+      schema:
+        type: string
+    pageLimitParam:
+      in: query
+      name: 'page[limit]'
+      required: false
+      example: '100'
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 15
+        description: Numbers of items per page to return.
+    pageOrderParam:
+      in: query
+      name: 'page[order]'
+      description: Sort the results by creation date; the default is descending
+      example: desc
+      schema:
+        type: string
+        default: desc
+        enum:
+          - desc
+          - asc
+  examples:
+    groupMetadata:
+      name: Group Name
+      description: Group description
+    groupRules:
+      - scheme: 'https://ipfs.io/ipfs/QmZTR5bcpQD7cFgTorqxZDYaew1Wqgfbd2ud9QqGPAkK2V'
+        required: true
+    organizationMetadata:
+      name: Organization Name
+      description: Organization Description
+    predefinedRules:
+      - scheme: 'https://ipfs.io/ipfs/QmZTR5bcpQD7cFgTorqxZDYaew1Wqgfbd2ud9QqGPAkK2V'
+        value: Predefined Name
+    requestMetadata:
+      - schema: 'https://schema.url'
+        metadata:
+          metadata1: value1
+        fields:
+          field1: value1
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
