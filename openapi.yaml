@@ -208,13 +208,6 @@ paths:
           schema:
             type: string
             example: 3a798290-caf1-496a-a7e5-4db32551b13d
-        - in: query
-          name: 'filter[org_id]'
-          description: Filter groups by organization ID
-          required: false
-          schema:
-            type: string
-            example: 3a798290-caf1-496a-a7e5-4db32551b13d
         - $ref: '#/components/parameters/pageLimitParam'
         - $ref: '#/components/parameters/sortingParam'
         - $ref: '#/components/parameters/pageCursorParam'
