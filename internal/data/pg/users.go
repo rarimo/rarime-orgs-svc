@@ -3,7 +3,6 @@ package pg
 import (
 	"github.com/Masterminds/squirrel"
 	"github.com/rarimo/rarime-orgs-svc/internal/data"
-	"gitlab.com/distributed_lab/kit/pgdb"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 	"golang.org/x/net/context"
 )
@@ -23,19 +22,7 @@ func (q UserQ) SelectCtx(ctx context.Context, selector data.UsersSelector) ([]da
 		stmt = stmt.Where(squirrel.Eq{"role": selector.Role})
 	}
 
-	if selector.PageSize != 0 {
-		stmt = stmt.Limit(selector.PageSize)
-	}
-
-	stmt = stmt.Offset(selector.PageCursor)
-
-	if len(selector.Sort) == 0 {
-		selector.Sort = pgdb.Sorts{"-time"}
-	}
-
-	stmt = selector.Sort.ApplyTo(stmt, map[string]string{
-		"time": "created_at",
-	})
+	stmt = applyPagination(stmt, selector.Sort, selector.PageSize, selector.PageCursor)
 
 	var users []data.User
 

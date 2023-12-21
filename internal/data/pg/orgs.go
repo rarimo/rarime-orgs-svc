@@ -27,25 +27,31 @@ func (q OrganizationQ) SelectCtx(ctx context.Context, selector data.OrgsSelector
 		stmt = stmt.Where(squirrel.Eq{"status": selector.Status})
 	}
 
-	if selector.PageSize != 0 {
-		stmt = stmt.Limit(selector.PageSize)
-	}
-
-	stmt = stmt.Offset(selector.PageCursor)
-
-	if len(selector.Sort) == 0 {
-		selector.Sort = pgdb.Sorts{"-time"}
-	}
-
-	stmt = selector.Sort.ApplyTo(stmt, map[string]string{
-		"time": "created_at",
-	})
+	stmt = applyPagination(stmt, selector.Sort, selector.PageSize, selector.PageCursor)
 
 	var orgs []data.Organization
 
-	if err := q.db.SelectContext(ctx, &orgs, stmt); err != nil {
+	if err := q.db.SelectContext(ctx, &orgs, (stmt)); err != nil {
 		return nil, errors.Wrap(err, "failed to select organizations")
 	}
 
 	return orgs, nil
+}
+
+func applyPagination(stmt squirrel.SelectBuilder, sorts pgdb.Sorts, size, cursor uint64) squirrel.SelectBuilder {
+	if size != 0 {
+		stmt = stmt.Limit(size)
+	}
+
+	stmt = stmt.Offset(cursor)
+
+	if len(sorts) == 0 {
+		sorts = pgdb.Sorts{"-time"}
+	}
+
+	stmt = sorts.ApplyTo(stmt, map[string]string{
+		"time": "created_at",
+	})
+
+	return stmt
 }

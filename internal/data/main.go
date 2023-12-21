@@ -24,9 +24,11 @@ type EmailInvitationQ interface {
 }
 
 type GroupQ interface {
+	SelectCtx(ctx context.Context, selector GroupsSelector) ([]Group, error)
 }
 
 type GroupUserQ interface {
+	SelectCtx(ctx context.Context, groupID uuid.UUID) ([]GroupUser, error)
 }
 
 type OrganizationQ interface {

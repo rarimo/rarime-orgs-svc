@@ -17,15 +17,15 @@ type orgVerifyRequest struct {
 }
 
 func newVerifyRequest(r *http.Request) (*orgVerifyRequest, error) {
-	var request orgVerifyRequest
+	var req orgVerifyRequest
 	var err error
 
-	request.ID, err = orgIDFromRequest(r)
+	req.ID, err = orgIDFromRequest(r)
 	if err != nil {
 		return nil, err
 	}
 
-	return &request, nil
+	return &req, nil
 }
 
 func OrgVerify(w http.ResponseWriter, r *http.Request) {
