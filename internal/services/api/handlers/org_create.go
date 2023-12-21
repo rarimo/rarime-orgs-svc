@@ -49,12 +49,13 @@ func OrgCreate(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt: time.Now().UTC(),
 	}
 	org := data.Organization{
-		ID:        uuid.New(),
-		Owner:     owner.ID,
-		Domain:    req.Attributes.Domain,
-		Metadata:  xo.Jsonb(req.Attributes.Metadata),
-		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
+		ID:           uuid.New(),
+		Owner:        owner.ID,
+		MembersCount: 1,
+		Domain:       req.Attributes.Domain,
+		Metadata:     xo.Jsonb(req.Attributes.Metadata),
+		CreatedAt:    time.Now().UTC(),
+		UpdatedAt:    time.Now().UTC(),
 	}
 
 	err = Storage(r).Transaction(func() error {

@@ -33,6 +33,7 @@ type OrganizationQ interface {
 	SelectCtx(ctx context.Context, selector OrgsSelector) ([]Organization, error)
 	OrganizationByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*Organization, error)
 	InsertCtx(ctx context.Context, o *Organization) error
+	UpdateCtx(ctx context.Context, o *Organization) error
 }
 
 type RequestQ interface {

@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/go-chi/chi"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
 	"github.com/rarimo/rarime-orgs-svc/internal/data"
 	"github.com/rarimo/rarime-orgs-svc/resources"
@@ -35,13 +33,9 @@ func newOrgUserListRequest(r *http.Request) (*orgUserListRequest, error) {
 		return nil, errors.Wrap(err, "failed to decode url")
 	}
 
-	id := chi.URLParam(r, "id")
-
-	req.ID, err = uuid.Parse(id)
+	req.ID, err = orgIDFromRequest(r)
 	if err != nil {
-		return nil, validation.Errors{
-			"id": errors.Wrap(err, "failed to parse id"),
-		}
+		return nil, err
 	}
 
 	return &req, nil

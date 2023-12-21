@@ -1,0 +1,15 @@
+allOf:
+  - $ref: '#/components/schemas/VerificationCodeKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - code
+        properties:
+          code:
+            type: string
+            description: Verification code for particular organization that should be added to the TXT DNS record in the “rarimo.” subdomain of provided organization domain.
+            example: "sw3Di5WborMeFAas16RIAkslu0cCQRe9ZVBSlKZHLa0="

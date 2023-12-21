@@ -57,7 +57,7 @@ post:
     
     - added - organization will become `verified`, organization issuer DID will be created and user will receive an "owner role" claim.
     
-    - not added - organization will stay `unverified`
+    - not added - organization will stay `unverified`.
     
     Returns an information about the particular organization after the verify process.
   operationId: verifyOrganizationByID

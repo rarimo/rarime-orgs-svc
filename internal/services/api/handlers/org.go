@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"github.com/go-chi/chi"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
 	"github.com/rarimo/rarime-orgs-svc/resources"
 	"gitlab.com/distributed_lab/ape"
@@ -27,18 +25,9 @@ func newOrgByIDRequest(r *http.Request) (*orgByIDRequest, error) {
 		return nil, errors.Wrap(err, "failed to decode url")
 	}
 
-	id := chi.URLParam(r, "id")
-	if id == "" {
-		return nil, validation.Errors{
-			"id": errors.New("Organization ID is required"),
-		}
-	}
-
-	request.ID, err = uuid.Parse(id)
+	request.ID, err = orgIDFromRequest(r)
 	if err != nil {
-		return nil, validation.Errors{
-			"id": errors.Wrap(err, "failed to parse ID"),
-		}
+		return nil, err
 	}
 
 	return &request, nil

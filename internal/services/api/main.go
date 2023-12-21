@@ -34,7 +34,7 @@ func Run(ctx context.Context, cfg config.Config) {
 				//r.With(handlers.AuthMiddleware()).Get("/users", handlers.OrgUserList)
 				r.Get("/users", handlers.OrgUserList)
 				//r.Post("/", handlers.OrgVerify)
-				//r.Get("/verification-code", handlers.OrgVerificationCode)
+				r.Get("/verification-code", handlers.OrgVerificationCode)
 			})
 			//r.Route("/groups", func(r chi.Router) {
 			//r.Get("/", handlers.GroupList)
