@@ -273,9 +273,6 @@
                       "items": {
                         "oneOf": [
                           {
-                            "$ref": "#/components/schemas/Owner"
-                          },
-                          {
                             "$ref": "#/components/schemas/User"
                           }
                         ]
