@@ -11,9 +11,13 @@ import (
 
 func orgIDFromRequest(r *http.Request) (uuid.UUID, error) {
 	rawID := chi.URLParam(r, "id")
+	return parseUUID(rawID)
+}
+
+func parseUUID(rawID string) (uuid.UUID, error) {
 	if rawID == "" {
 		return uuid.UUID{}, validation.Errors{
-			"id": errors.New("Organization ID is required"),
+			"id": errors.New("ID is required"),
 		}
 	}
 

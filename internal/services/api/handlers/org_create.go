@@ -15,22 +15,22 @@ import (
 	"time"
 )
 
-func newOrgCreateRequest(r *http.Request) (*resources.OrganizationCreate, error) {
-	var req resources.OrganizationCreate
+func newOrgCreateRequest(r *http.Request) (*resources.OrganizationCreateRequest, error) {
+	var req resources.OrganizationCreateRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(err, "failed to decode body")
 	}
 
-	if valid := json.Valid(req.Attributes.Metadata); !valid {
+	if valid := json.Valid(req.Data.Attributes.Metadata); !valid {
 		return nil, validation.Errors{
 			"data/attributes/metadata": errors.New("invalid metadata json"),
 		}
 	}
 
 	return &req, validation.Errors{
-		"data/attributes/domain":    validation.Validate(req.Attributes.Domain, validation.Required),
-		"data/attributes/owner_did": validation.Validate(req.Attributes.OwnerDid, validation.Required),
+		"data/attributes/domain":    validation.Validate(req.Data.Attributes.Domain, validation.Required),
+		"data/attributes/owner_did": validation.Validate(req.Data.Attributes.OwnerDid, validation.Required),
 	}
 }
 
@@ -44,7 +44,7 @@ func OrgCreate(w http.ResponseWriter, r *http.Request) {
 
 	owner := data.User{
 		ID:        uuid.New(),
-		Did:       req.Attributes.OwnerDid,
+		Did:       req.Data.Attributes.OwnerDid,
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 	}
@@ -52,8 +52,8 @@ func OrgCreate(w http.ResponseWriter, r *http.Request) {
 		ID:           uuid.New(),
 		Owner:        owner.ID,
 		MembersCount: 1,
-		Domain:       req.Attributes.Domain,
-		Metadata:     xo.Jsonb(req.Attributes.Metadata),
+		Domain:       req.Data.Attributes.Domain,
+		Metadata:     xo.Jsonb(req.Data.Attributes.Metadata),
 		CreatedAt:    time.Now().UTC(),
 		UpdatedAt:    time.Now().UTC(),
 	}
@@ -62,14 +62,14 @@ func OrgCreate(w http.ResponseWriter, r *http.Request) {
 		err = Storage(r).UserQ().InsertCtx(r.Context(), &owner)
 		if err != nil {
 			return errors.Wrap(err, "failed to insert new user", logan.F{
-				"did": req.Attributes.OwnerDid,
+				"did": req.Data.Attributes.OwnerDid,
 			})
 		}
 		err = Storage(r).OrganizationQ().InsertCtx(r.Context(), &org)
 		if err != nil {
 			return errors.Wrap(err, "failed to insert new org", logan.F{
-				"owner_did": req.Attributes.OwnerDid,
-				"domain":    req.Attributes.Domain,
+				"owner_did": req.Data.Attributes.OwnerDid,
+				"domain":    req.Data.Attributes.Domain,
 			})
 		}
 

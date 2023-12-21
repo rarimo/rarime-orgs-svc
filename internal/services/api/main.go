@@ -38,7 +38,9 @@ func Run(ctx context.Context, cfg config.Config) {
 			})
 			r.Route("/groups", func(r chi.Router) {
 				r.Get("/", handlers.GroupList)
+				// TODO: add auth middleware for group create endpoint
 				//r.With(handlers.AuthMiddleware()).Post("/", handlers.GroupCreate)
+				r.Post("/", handlers.GroupCreate)
 				//r.Route("/{group_id}", func(r chi.Router) {
 				//	r.Get("/", handlers.GroupByID)
 				//	r.Route("/emails", func(r chi.Router) {

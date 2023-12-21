@@ -25,6 +25,7 @@ type EmailInvitationQ interface {
 
 type GroupQ interface {
 	SelectCtx(ctx context.Context, selector GroupsSelector) ([]Group, error)
+	InsertCtx(ctx context.Context, o *Group) error
 }
 
 type GroupUserQ interface {
