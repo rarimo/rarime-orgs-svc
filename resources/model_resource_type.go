@@ -16,7 +16,6 @@ const (
 	INVITATIONS_EMAIL        ResourceType = "invitations-email"
 	ORGANIZATIONS_CREATE     ResourceType = "organizations-create"
 	ORGANIZATIONS            ResourceType = "organizations"
-	OWNERS                   ResourceType = "owners"
 	REQUESTS_FILL            ResourceType = "requests-fill"
 	REQUESTS                 ResourceType = "requests"
 	REQUESTS_VERIFY          ResourceType = "requests-verify"

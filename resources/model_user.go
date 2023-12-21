@@ -8,7 +8,8 @@ import "encoding/json"
 
 type User struct {
 	Key
-	Attributes UserAttributes `json:"attributes"`
+	Attributes    UserAttributes     `json:"attributes"`
+	Relationships *UserRelationships `json:"relationships,omitempty"`
 }
 type UserResponse struct {
 	Data     User     `json:"data"`

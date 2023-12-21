@@ -3,7 +3,6 @@ allOf:
   - type: object
     required:
       - attributes
-      - relationships
     properties:
       attributes:
         type: object
@@ -74,8 +73,6 @@ allOf:
             example: "2021-08-12T13:00:00Z"
       relationships:
         type: object
-        required:
-          - owner
         properties:
           owner:
             type: object
@@ -84,14 +81,4 @@ allOf:
               - data
             properties:
               data:
-                $ref: '#/components/schemas/OwnerKey'
-          users:
-            type: object
-            description: The users of the organization
-            required:
-              - data
-            properties:
-              data:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UserKey'
+                $ref: '#/components/schemas/UserKey'

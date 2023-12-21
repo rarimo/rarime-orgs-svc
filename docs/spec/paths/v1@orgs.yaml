@@ -30,19 +30,8 @@ get:
           - unverified
           - verified
     - $ref: '#/components/parameters/pageLimitParam'
-    - $ref: '#/components/parameters/pageOrderParam'
     - $ref: '#/components/parameters/pageCursorParam'
-    - in: query
-      name: 'include'
-      description: The resources to include in the response, such as the organization owner, users, etc.
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
-          enum:
-            - owner
-            - users
+    - $ref: '#/components/parameters/sortingParam'
   responses:
     200:
       description: Success
@@ -52,18 +41,11 @@ get:
             type: object
             required:
               - data
-              - included
             properties:
               data:
                 type: array
                 items:
                   $ref: '#/components/schemas/Organization'
-              included:
-                type: array
-                items:
-                  oneOf:
-                    - $ref: '#/components/schemas/Owner'
-                    - $ref: '#/components/schemas/User'
     400:
       $ref: '#/components/responses/invalidParameter'
     500:
@@ -104,7 +86,7 @@ post:
                 type: array
                 items:
                   oneOf:
-                    - $ref: '#/components/schemas/Owner'
+                    - $ref: '#/components/schemas/User'
     400:
       $ref: '#/components/responses/invalidParameter'
     500:

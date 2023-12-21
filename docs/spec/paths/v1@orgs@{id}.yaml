@@ -15,7 +15,7 @@ get:
         example: "3a798290-caf1-496a-a7e5-4db32551b13d"
     - in: query
       name: 'include'
-      description: The resources to include in the response, such as the organization owner and users
+      description: The resources to include in the response, such as the organization owner
       required: false
       schema:
         type: array
@@ -23,7 +23,6 @@ get:
           type: string
           enum:
             - owner
-            - users
   responses:
     200:
       description: OK
@@ -41,7 +40,6 @@ get:
                 type: array
                 items:
                   oneOf:
-                    - $ref: '#/components/schemas/Owner'
                     - $ref: '#/components/schemas/User'
     400:
       $ref: '#/components/responses/invalidParameter'

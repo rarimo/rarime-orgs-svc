@@ -8,8 +8,8 @@ import "encoding/json"
 
 type Group struct {
 	Key
-	Attributes    GroupAttributes    `json:"attributes"`
-	Relationships GroupRelationships `json:"relationships"`
+	Attributes    GroupAttributes     `json:"attributes"`
+	Relationships *GroupRelationships `json:"relationships,omitempty"`
 }
 type GroupResponse struct {
 	Data     Group    `json:"data"`

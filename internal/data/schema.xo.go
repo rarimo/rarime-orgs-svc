@@ -137,6 +137,7 @@ type Request struct {
 type User struct {
 	ID        uuid.UUID `db:"id" json:"id" structs:"-"`                          // id
 	Did       string    `db:"did" json:"did" structs:"did"`                      // did
+	OrgID     uuid.UUID `db:"org_id" json:"org_id" structs:"org_id"`             // org_id
 	Role      int16     `db:"role" json:"role" structs:"role"`                   // role
 	CreatedAt time.Time `db:"created_at" json:"created_at" structs:"created_at"` // created_at
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at" structs:"updated_at"` // updated_at

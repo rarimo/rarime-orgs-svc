@@ -49,7 +49,7 @@ get:
           - rejected
           - submitted
     - $ref: '#/components/parameters/pageLimitParam'
-    - $ref: '#/components/parameters/pageOrderParam'
+    - $ref: '#/components/parameters/sortingParam'
     - $ref: '#/components/parameters/pageCursorParam'
     - in: query
       name: 'include'

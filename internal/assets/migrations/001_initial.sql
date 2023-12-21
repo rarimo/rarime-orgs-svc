@@ -8,6 +8,7 @@ create table if not exists users
 (
     id         uuid primary key                     default gen_random_uuid(),
     did        text                        not null,
+    org_id     uuid                        not null,
     role       smallint                    not null default 0,
     created_at timestamp without time zone not null default now(),
     updated_at timestamp without time zone not null default now()

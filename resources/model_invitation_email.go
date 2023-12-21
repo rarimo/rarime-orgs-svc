@@ -8,8 +8,8 @@ import "encoding/json"
 
 type InvitationEmail struct {
 	Key
-	Attributes    InvitationEmailAttributes    `json:"attributes"`
-	Relationships InvitationEmailRelationships `json:"relationships"`
+	Attributes    InvitationEmailAttributes     `json:"attributes"`
+	Relationships *InvitationEmailRelationships `json:"relationships,omitempty"`
 }
 type InvitationEmailResponse struct {
 	Data     InvitationEmail `json:"data"`

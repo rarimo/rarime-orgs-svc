@@ -8,6 +8,7 @@ allOf:
         type: object
         required:
           - role
+          - org_id
           - created_at
           - updated_at
         properties:
@@ -34,6 +35,10 @@ allOf:
                 value: 1
               - name: superadmin
                 value: 2
+          org_id:
+            type: string
+            description: The ID of the organization that the user belongs to
+            example: "3a798290-caf1-496a-a7e5-4db32551b13d"
           created_at:
             type: string
             format: time.Time
@@ -44,3 +49,15 @@ allOf:
             format: time.Time
             description: The time (UTC) that the user was updated in RFC3339 format
             example: "2021-08-12T13:00:00Z"
+      relationships:
+        type: object
+        required:
+          - organization
+        properties:
+          organization:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                $ref: '#/components/schemas/OrganizationKey'

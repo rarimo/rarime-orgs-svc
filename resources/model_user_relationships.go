@@ -4,6 +4,6 @@
 
 package resources
 
-type OrganizationRelationships struct {
-	Owner *Relation `json:"owner,omitempty"`
+type UserRelationships struct {
+	Organization Relation `json:"organization"`
 }

@@ -6,12 +6,12 @@ package pg
 import (
 	"context"
 	"database/sql"
-	"github.com/rarimo/rarime-orgs-svc/internal/data"
 
 	"gitlab.com/distributed_lab/kit/pgdb"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 
 	"github.com/google/uuid"
+	"github.com/rarimo/rarime-orgs-svc/internal/data"
 )
 
 // Storage is the helper struct for database operations
@@ -602,18 +602,18 @@ func (s Storage) UserQ() data.UserQ {
 	return NewUserQ(s.DB())
 }
 
-var colsUser = `id, did, role, created_at, updated_at`
+var colsUser = `id, did, org_id, role, created_at, updated_at`
 
 // InsertCtx inserts a User to the database.
 func (q UserQ) InsertCtx(ctx context.Context, u *data.User) error {
 	// sql insert query, primary key must be provided
 	sqlstr := `INSERT INTO public.users (` +
-		`id, did, role, created_at, updated_at` +
+		`id, did, org_id, role, created_at, updated_at` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5` +
+		`$1, $2, $3, $4, $5, $6` +
 		`)`
 	// run
-	err := q.db.ExecRawContext(ctx, sqlstr, u.ID, u.Did, u.Role, u.CreatedAt, u.UpdatedAt)
+	err := q.db.ExecRawContext(ctx, sqlstr, u.ID, u.Did, u.OrgID, u.Role, u.CreatedAt, u.UpdatedAt)
 	return errors.Wrap(err, "failed to execute insert query")
 }
 
@@ -626,10 +626,10 @@ func (q UserQ) Insert(u *data.User) error {
 func (q UserQ) UpdateCtx(ctx context.Context, u *data.User) error {
 	// update with composite primary key
 	sqlstr := `UPDATE public.users SET ` +
-		`did = $1, role = $2, updated_at = $3 ` +
-		`WHERE id = $4`
+		`did = $1, org_id = $2, role = $3, updated_at = $4 ` +
+		`WHERE id = $5`
 	// run
-	err := q.db.ExecRawContext(ctx, sqlstr, u.Did, u.Role, u.UpdatedAt, u.ID)
+	err := q.db.ExecRawContext(ctx, sqlstr, u.Did, u.OrgID, u.Role, u.UpdatedAt, u.ID)
 	return errors.Wrap(err, "failed to execute update")
 }
 
@@ -642,15 +642,15 @@ func (q UserQ) Update(u *data.User) error {
 func (q UserQ) UpsertCtx(ctx context.Context, u *data.User) error {
 	// upsert
 	sqlstr := `INSERT INTO public.users (` +
-		`id, did, role, created_at, updated_at` +
+		`id, did, org_id, role, created_at, updated_at` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5` +
+		`$1, $2, $3, $4, $5, $6` +
 		`)` +
 		` ON CONFLICT (id) DO ` +
 		`UPDATE SET ` +
-		`did = EXCLUDED.did, role = EXCLUDED.role, updated_at = EXCLUDED.updated_at `
+		`did = EXCLUDED.did, org_id = EXCLUDED.org_id, role = EXCLUDED.role, updated_at = EXCLUDED.updated_at `
 	// run
-	if err := q.db.ExecRawContext(ctx, sqlstr, u.ID, u.Did, u.Role, u.CreatedAt, u.UpdatedAt); err != nil {
+	if err := q.db.ExecRawContext(ctx, sqlstr, u.ID, u.Did, u.OrgID, u.Role, u.CreatedAt, u.UpdatedAt); err != nil {
 		return errors.Wrap(err, "failed to execute upsert stmt")
 	}
 	return nil
@@ -1172,7 +1172,7 @@ func (q RequestQ) RequestsByUserID(userID uuid.NullUUID, isForUpdate bool) ([]da
 func (q UserQ) UsersByDidCtx(ctx context.Context, did string, isForUpdate bool) ([]data.User, error) {
 	// query
 	sqlstr := `SELECT ` +
-		`id, did, role, created_at, updated_at ` +
+		`id, did, org_id, role, created_at, updated_at ` +
 		`FROM public.users ` +
 		`WHERE did = $1`
 	// run
@@ -1201,7 +1201,7 @@ func (q UserQ) UsersByDid(did string, isForUpdate bool) ([]data.User, error) {
 func (q UserQ) UserByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*data.User, error) {
 	// query
 	sqlstr := `SELECT ` +
-		`id, did, role, created_at, updated_at ` +
+		`id, did, org_id, role, created_at, updated_at ` +
 		`FROM public.users ` +
 		`WHERE id = $1`
 	// run

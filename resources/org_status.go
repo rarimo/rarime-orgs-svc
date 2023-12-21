@@ -51,3 +51,7 @@ func (s *OrganizationStatus) UnmarshalJSON(b []byte) error {
 func (s OrganizationStatus) Int() int {
 	return int(s)
 }
+func (s OrganizationStatus) Intp() *int {
+	res := int(s)
+	return &res
+}

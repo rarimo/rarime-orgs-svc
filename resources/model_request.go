@@ -8,8 +8,8 @@ import "encoding/json"
 
 type Request struct {
 	Key
-	Attributes    RequestAttributes    `json:"attributes"`
-	Relationships RequestRelationships `json:"relationships"`
+	Attributes    RequestAttributes     `json:"attributes"`
+	Relationships *RequestRelationships `json:"relationships,omitempty"`
 }
 type RequestResponse struct {
 	Data     Request  `json:"data"`

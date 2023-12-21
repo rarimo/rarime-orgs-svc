@@ -17,7 +17,7 @@ func AuthMiddleware() func(http.Handler) http.Handler {
 			}
 
 			token = strings.TrimPrefix(token, "Bearer ")
-			// TODO: implement auth and user role extraction
+			// TODO: implement auth and user did extraction and it's context injection
 
 			next.ServeHTTP(w, r)
 		})

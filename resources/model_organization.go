@@ -8,8 +8,8 @@ import "encoding/json"
 
 type Organization struct {
 	Key
-	Attributes    OrganizationAttributes    `json:"attributes"`
-	Relationships OrganizationRelationships `json:"relationships"`
+	Attributes    OrganizationAttributes     `json:"attributes"`
+	Relationships *OrganizationRelationships `json:"relationships,omitempty"`
 }
 type OrganizationResponse struct {
 	Data     Organization `json:"data"`
