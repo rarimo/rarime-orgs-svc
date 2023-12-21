@@ -58,26 +58,10 @@
             "$ref": "#/components/parameters/pageLimitParam"
           },
           {
-            "$ref": "#/components/parameters/pageOrderParam"
-          },
-          {
             "$ref": "#/components/parameters/pageCursorParam"
           },
           {
-            "in": "query",
-            "name": "include",
-            "description": "The resources to include in the response, such as the organization owner, users, etc.",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "owner",
-                  "users"
-                ]
-              }
-            }
+            "$ref": "#/components/parameters/sortingParam"
           }
         ],
         "responses": {
@@ -88,27 +72,13 @@
                 "schema": {
                   "type": "object",
                   "required": [
-                    "data",
-                    "included"
+                    "data"
                   ],
                   "properties": {
                     "data": {
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/Organization"
-                      }
-                    },
-                    "included": {
-                      "type": "array",
-                      "items": {
-                        "oneOf": [
-                          {
-                            "$ref": "#/components/schemas/Owner"
-                          },
-                          {
-                            "$ref": "#/components/schemas/User"
-                          }
-                        ]
                       }
                     }
                   }
@@ -169,7 +139,7 @@
                       "items": {
                         "oneOf": [
                           {
-                            "$ref": "#/components/schemas/Owner"
+                            "$ref": "#/components/schemas/User"
                           }
                         ]
                       }
@@ -210,15 +180,14 @@
           {
             "in": "query",
             "name": "include",
-            "description": "The resources to include in the response, such as the organization owner and users",
+            "description": "The resources to include in the response, such as the organization owner",
             "required": false,
             "schema": {
               "type": "array",
               "items": {
                 "type": "string",
                 "enum": [
-                  "owner",
-                  "users"
+                  "owner"
                 ]
               }
             }
@@ -243,9 +212,6 @@
                       "type": "array",
                       "items": {
                         "oneOf": [
-                          {
-                            "$ref": "#/components/schemas/Owner"
-                          },
                           {
                             "$ref": "#/components/schemas/User"
                           }
@@ -365,7 +331,7 @@
             "$ref": "#/components/parameters/pageLimitParam"
           },
           {
-            "$ref": "#/components/parameters/pageOrderParam"
+            "$ref": "#/components/parameters/sortingParam"
           },
           {
             "$ref": "#/components/parameters/pageCursorParam"
@@ -857,7 +823,7 @@
             "$ref": "#/components/parameters/pageLimitParam"
           },
           {
-            "$ref": "#/components/parameters/pageOrderParam"
+            "$ref": "#/components/parameters/sortingParam"
           },
           {
             "$ref": "#/components/parameters/pageCursorParam"
@@ -1150,6 +1116,97 @@
         }
       }
     },
+    "/v1/orgs/{id}/users": {
+      "get": {
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "Organization's user list",
+        "description": "Returns list of users registered in the organization.\n",
+        "operationId": "getOrgUsers",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "filter[user_did]",
+            "description": "Filter users by user DID",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/pageLimitParam"
+          },
+          {
+            "$ref": "#/components/parameters/sortingParam"
+          },
+          {
+            "$ref": "#/components/parameters/pageCursorParam"
+          },
+          {
+            "in": "query",
+            "name": "include",
+            "description": "The resources to include in the response, such as the organization.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "organization"
+                ]
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data",
+                    "included"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    },
+                    "included": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/Organization"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameter"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalError"
+          }
+        }
+      }
+    },
     "/v1/orgs/{id}/verification-code": {
       "get": {
         "tags": [
@@ -1274,8 +1331,7 @@
           {
             "type": "object",
             "required": [
-              "attributes",
-              "relationships"
+              "attributes"
             ],
             "properties": {
               "attributes": {
@@ -1641,8 +1697,7 @@
           {
             "type": "object",
             "required": [
-              "attributes",
-              "relationships"
+              "attributes"
             ],
             "properties": {
               "attributes": {
@@ -1740,8 +1795,7 @@
           {
             "type": "object",
             "required": [
-              "attributes",
-              "relationships"
+              "attributes"
             ],
             "properties": {
               "attributes": {
@@ -1830,9 +1884,6 @@
               },
               "relationships": {
                 "type": "object",
-                "required": [
-                  "owner"
-                ],
                 "properties": {
                   "owner": {
                     "type": "object",
@@ -1842,22 +1893,7 @@
                     ],
                     "properties": {
                       "data": {
-                        "$ref": "#/components/schemas/OwnerKey"
-                      }
-                    }
-                  },
-                  "users": {
-                    "type": "object",
-                    "description": "The users of the organization",
-                    "required": [
-                      "data"
-                    ],
-                    "properties": {
-                      "data": {
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/components/schemas/UserKey"
-                        }
+                        "$ref": "#/components/schemas/UserKey"
                       }
                     }
                   }
@@ -1949,90 +1985,6 @@
           }
         }
       },
-      "Owner": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/OwnerKey"
-          },
-          {
-            "type": "object",
-            "required": [
-              "attributes"
-            ],
-            "properties": {
-              "attributes": {
-                "type": "object",
-                "required": [
-                  "role",
-                  "created_at",
-                  "updated_at"
-                ],
-                "properties": {
-                  "did": {
-                    "type": "string",
-                    "description": "The DID of the user",
-                    "example": "did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg"
-                  },
-                  "role": {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/Enum"
-                      }
-                    ],
-                    "description": "The global role of the user.\n`undefined` – Basic user role.\n`owner` – The owner of some organization.\n`superadmin` – The user with the highest privileges.\n",
-                    "format": "UserRole",
-                    "enum": [
-                      {
-                        "name": "undefined",
-                        "value": 0
-                      },
-                      {
-                        "name": "owner",
-                        "value": 1
-                      },
-                      {
-                        "name": "superadmin",
-                        "value": 2
-                      }
-                    ]
-                  },
-                  "created_at": {
-                    "type": "string",
-                    "format": "time.Time",
-                    "description": "The time (UTC) that the user was created in RFC3339 format",
-                    "example": "2021-08-12T12:00:00Z"
-                  },
-                  "updated_at": {
-                    "type": "string",
-                    "format": "time.Time",
-                    "description": "The time (UTC) that the user was updated in RFC3339 format",
-                    "example": "2021-08-12T13:00:00Z"
-                  }
-                }
-              }
-            }
-          }
-        ]
-      },
-      "OwnerKey": {
-        "type": "object",
-        "required": [
-          "id",
-          "type"
-        ],
-        "properties": {
-          "id": {
-            "type": "string",
-            "example": "778374e6-5c07-4268-9849-aeb095251105"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "owners"
-            ]
-          }
-        }
-      },
       "Request": {
         "allOf": [
           {
@@ -2041,8 +1993,7 @@
           {
             "type": "object",
             "required": [
-              "attributes",
-              "relationships"
+              "attributes"
             ],
             "properties": {
               "attributes": {
@@ -2325,6 +2276,7 @@
                 "type": "object",
                 "required": [
                   "role",
+                  "org_id",
                   "created_at",
                   "updated_at"
                 ],
@@ -2357,6 +2309,11 @@
                       }
                     ]
                   },
+                  "org_id": {
+                    "type": "string",
+                    "description": "The ID of the organization that the user belongs to",
+                    "example": "3a798290-caf1-496a-a7e5-4db32551b13d"
+                  },
                   "created_at": {
                     "type": "string",
                     "format": "time.Time",
@@ -2368,6 +2325,25 @@
                     "format": "time.Time",
                     "description": "The time (UTC) that the user was updated in RFC3339 format",
                     "example": "2021-08-12T13:00:00Z"
+                  }
+                }
+              },
+              "relationships": {
+                "type": "object",
+                "required": [
+                  "organization"
+                ],
+                "properties": {
+                  "organization": {
+                    "type": "object",
+                    "required": [
+                      "data"
+                    ],
+                    "properties": {
+                      "data": {
+                        "$ref": "#/components/schemas/OrganizationKey"
+                      }
+                    }
                   }
                 }
               }
@@ -2476,22 +2452,18 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 100,
-          "default": 15,
+          "default": 10,
           "description": "Numbers of items per page to return."
         }
       },
-      "pageOrderParam": {
+      "sortingParam": {
         "in": "query",
-        "name": "page[order]",
-        "description": "Sort the results by creation date; the default is descending",
-        "example": "desc",
+        "name": "sort",
+        "required": false,
+        "example": "-time",
         "schema": {
           "type": "string",
-          "default": "desc",
-          "enum": [
-            "desc",
-            "asc"
-          ]
+          "description": "Order of records on the page. Format is `[-]{columnName}`; minus sign makes the order descending. Each endpoint specifies its own set of columns to sort data by."
         }
       }
     },
