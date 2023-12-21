@@ -936,8 +936,8 @@ components:
               properties:
                 org_id:
                   type: string
-                  description: The DID of the owner of the organization
-                  example: 'did:iden3:readonly:tM1QCJ7ytcbvLB7EFQhGsJPumc11DEE18gEvAzxE7'
+                  description: The ID of the organization that the group belongs to
+                  example: 3a798290-caf1-496a-a7e5-4db32551b13d
                 metadata:
                   type: object
                   format: json.RawMessage
