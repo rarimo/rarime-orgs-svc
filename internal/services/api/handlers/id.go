@@ -14,6 +14,11 @@ func orgIDFromRequest(r *http.Request) (uuid.UUID, error) {
 	return parseUUID(rawID)
 }
 
+func groupIDFromRequest(r *http.Request) (uuid.UUID, error) {
+	rawID := chi.URLParam(r, "group_id")
+	return parseUUID(rawID)
+}
+
 func parseUUID(rawID string) (uuid.UUID, error) {
 	if rawID == "" {
 		return uuid.UUID{}, validation.Errors{

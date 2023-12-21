@@ -41,26 +41,26 @@ func Run(ctx context.Context, cfg config.Config) {
 				// TODO: add auth middleware for group create endpoint
 				//r.With(handlers.AuthMiddleware()).Post("/", handlers.GroupCreate)
 				r.Post("/", handlers.GroupCreate)
-				//r.Route("/{group_id}", func(r chi.Router) {
-				//	r.Get("/", handlers.GroupByID)
-				//	r.Route("/emails", func(r chi.Router) {
-				//		r.Group(func(r chi.Router) {
-				//			r.Use(handlers.AuthMiddleware())
-				//			r.Post("/", handlers.InvitationEmailCreate)
-				//			r.Patch("/", handlers.InvitationEmailAccept)
-				//		})
-				//	})
-				//	r.Route("/requests", func(r chi.Router) {
-				//		r.Group(func(r chi.Router) {
-				//			r.Use(handlers.AuthMiddleware())
-				//			r.Get("/", handlers.RequestList)
-				//			r.Route("/{request_id}", func(r chi.Router) {
-				//				r.Patch("/", handlers.RequestFill)
-				//				r.Post("/", handlers.RequestVerify)
-				//			})
-				//		})
-				//	})
-				//})
+				r.Route("/{group_id}", func(r chi.Router) {
+					r.Get("/", handlers.GroupByID)
+					//	r.Route("/emails", func(r chi.Router) {
+					//		r.Group(func(r chi.Router) {
+					//			r.Use(handlers.AuthMiddleware())
+					//			r.Post("/", handlers.InvitationEmailCreate)
+					//			r.Patch("/", handlers.InvitationEmailAccept)
+					//		})
+					//	})
+					//	r.Route("/requests", func(r chi.Router) {
+					//		r.Group(func(r chi.Router) {
+					//			r.Use(handlers.AuthMiddleware())
+					//			r.Get("/", handlers.RequestList)
+					//			r.Route("/{request_id}", func(r chi.Router) {
+					//				r.Patch("/", handlers.RequestFill)
+					//				r.Post("/", handlers.RequestVerify)
+					//			})
+					//		})
+					//	})
+				})
 			})
 		})
 	})

@@ -24,8 +24,9 @@ type EmailInvitationQ interface {
 }
 
 type GroupQ interface {
-	SelectCtx(ctx context.Context, selector GroupsSelector) ([]Group, error)
 	InsertCtx(ctx context.Context, o *Group) error
+	SelectCtx(ctx context.Context, selector GroupsSelector) ([]Group, error)
+	GroupByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*Group, error)
 }
 
 type GroupUserQ interface {
@@ -33,10 +34,10 @@ type GroupUserQ interface {
 }
 
 type OrganizationQ interface {
-	SelectCtx(ctx context.Context, selector OrgsSelector) ([]Organization, error)
-	OrganizationByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*Organization, error)
 	InsertCtx(ctx context.Context, o *Organization) error
 	UpdateCtx(ctx context.Context, o *Organization) error
+	SelectCtx(ctx context.Context, selector OrgsSelector) ([]Organization, error)
+	OrganizationByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*Organization, error)
 }
 
 type RequestQ interface {
