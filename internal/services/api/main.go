@@ -30,6 +30,7 @@ func Run(ctx context.Context, cfg config.Config) {
 			r.Post("/", handlers.OrgCreate)
 			r.Route("/{id}", func(r chi.Router) {
 				r.Get("/", handlers.OrgByID)
+				// TODO: add auth middleware for org user list endpoint
 				//r.With(handlers.AuthMiddleware()).Get("/users", handlers.OrgUserList)
 				r.Get("/users", handlers.OrgUserList)
 				//r.Post("/", handlers.OrgVerify)

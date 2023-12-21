@@ -48,6 +48,7 @@ func newOrgUserListRequest(r *http.Request) (*orgUserListRequest, error) {
 }
 
 func OrgUserList(w http.ResponseWriter, r *http.Request) {
+	// TODO: add auth but not sure for what
 	req, err := newOrgUserListRequest(r)
 	if err != nil {
 		ape.RenderErr(w, problems.BadRequest(err)...)

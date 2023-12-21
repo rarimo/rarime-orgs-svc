@@ -86,7 +86,6 @@ post:
                 type: array
                 items:
                   oneOf:
-                    - $ref: '#/components/schemas/Owner'
                     - $ref: '#/components/schemas/User'
     400:
       $ref: '#/components/responses/invalidParameter'
