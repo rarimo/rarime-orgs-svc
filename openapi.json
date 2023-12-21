@@ -239,7 +239,7 @@
           "Organizations"
         ],
         "summary": "Verify an organization",
-        "description": "Verifies that code was added to the DNS record and if:\n- added - organization will become `verified`, organization issuer DID will be created and user will receive an \"owner role\" claim.\n- not added - organization will stay `unverified`\nReturns an information about the particular organization after the verify process.\n",
+        "description": "Verifies that code was added to the DNS record and if:\n- added - organization will become `verified`, organization issuer DID will be created and user will receive an \"owner role\" claim.\n- not added - organization will stay `unverified`.\nReturns an information about the particular organization after the verify process.\n",
         "operationId": "verifyOrganizationByID",
         "parameters": [
           {
@@ -1236,7 +1236,7 @@
                   ],
                   "properties": {
                     "data": {
-                      "$ref": "#/components/schemas/VerificationCodeKey"
+                      "$ref": "#/components/schemas/VerificationCode"
                     }
                   }
                 }
@@ -2367,6 +2367,34 @@
           }
         }
       },
+      "VerificationCode": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VerificationCodeKey"
+          },
+          {
+            "type": "object",
+            "required": [
+              "attributes"
+            ],
+            "properties": {
+              "attributes": {
+                "type": "object",
+                "required": [
+                  "code"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "Verification code for particular organization that should be added to the TXT DNS record in the “rarimo.” subdomain of provided organization domain.",
+                    "example": "sw3Di5WborMeFAas16RIAkslu0cCQRe9ZVBSlKZHLa0="
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
       "VerificationCodeKey": {
         "type": "object",
         "required": [
@@ -2375,11 +2403,11 @@
         ],
         "properties": {
           "id": {
-            "type": "string",
-            "example": "6A4GSfUNKwM9hHuZVg4aUw=="
+            "type": "string"
           },
           "type": {
             "type": "string",
+            "example": "2300c287-f2b8-4e57-a381-679d7521b011",
             "enum": [
               "verification-codes"
             ]
