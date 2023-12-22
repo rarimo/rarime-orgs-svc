@@ -21,10 +21,12 @@ type Storage interface {
 }
 
 type EmailInvitationQ interface {
+	InsertCtx(ctx context.Context, e *EmailInvitation) error
+	EmailInvitationByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*EmailInvitation, error)
 }
 
 type GroupQ interface {
-	InsertCtx(ctx context.Context, o *Group) error
+	InsertCtx(ctx context.Context, g *Group) error
 	SelectCtx(ctx context.Context, selector GroupsSelector) ([]Group, error)
 	GroupByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*Group, error)
 }
@@ -41,10 +43,13 @@ type OrganizationQ interface {
 }
 
 type RequestQ interface {
+	InsertCtx(ctx context.Context, r *Request) error
+	UpdateCtx(ctx context.Context, r *Request) error
+	RequestByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*Request, error)
 }
 
 type UserQ interface {
-	InsertCtx(ctx context.Context, o *User) error
+	InsertCtx(ctx context.Context, u *User) error
 	SelectCtx(ctx context.Context, selector UsersSelector) ([]User, error)
 	UserByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*User, error)
 }

@@ -511,18 +511,18 @@ func (s Storage) RequestQ() data.RequestQ {
 	return NewRequestQ(s.DB())
 }
 
-var colsRequest = `id, org_id, group_id, user_id, metadata, status, created_at, updated_at`
+var colsRequest = `id, org_id, group_id, user_did, metadata, status, created_at, updated_at`
 
 // InsertCtx inserts a Request to the database.
 func (q RequestQ) InsertCtx(ctx context.Context, r *data.Request) error {
 	// sql insert query, primary key must be provided
 	sqlstr := `INSERT INTO public.requests (` +
-		`id, org_id, group_id, user_id, metadata, status, created_at, updated_at` +
+		`id, org_id, group_id, user_did, metadata, status, created_at, updated_at` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6, $7, $8` +
 		`)`
 	// run
-	err := q.db.ExecRawContext(ctx, sqlstr, r.ID, r.OrgID, r.GroupID, r.UserID, r.Metadata, r.Status, r.CreatedAt, r.UpdatedAt)
+	err := q.db.ExecRawContext(ctx, sqlstr, r.ID, r.OrgID, r.GroupID, r.UserDid, r.Metadata, r.Status, r.CreatedAt, r.UpdatedAt)
 	return errors.Wrap(err, "failed to execute insert query")
 }
 
@@ -535,10 +535,10 @@ func (q RequestQ) Insert(r *data.Request) error {
 func (q RequestQ) UpdateCtx(ctx context.Context, r *data.Request) error {
 	// update with composite primary key
 	sqlstr := `UPDATE public.requests SET ` +
-		`org_id = $1, group_id = $2, user_id = $3, metadata = $4, status = $5, updated_at = $6 ` +
+		`org_id = $1, group_id = $2, user_did = $3, metadata = $4, status = $5, updated_at = $6 ` +
 		`WHERE id = $7`
 	// run
-	err := q.db.ExecRawContext(ctx, sqlstr, r.OrgID, r.GroupID, r.UserID, r.Metadata, r.Status, r.UpdatedAt, r.ID)
+	err := q.db.ExecRawContext(ctx, sqlstr, r.OrgID, r.GroupID, r.UserDid, r.Metadata, r.Status, r.UpdatedAt, r.ID)
 	return errors.Wrap(err, "failed to execute update")
 }
 
@@ -551,15 +551,15 @@ func (q RequestQ) Update(r *data.Request) error {
 func (q RequestQ) UpsertCtx(ctx context.Context, r *data.Request) error {
 	// upsert
 	sqlstr := `INSERT INTO public.requests (` +
-		`id, org_id, group_id, user_id, metadata, status, created_at, updated_at` +
+		`id, org_id, group_id, user_did, metadata, status, created_at, updated_at` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6, $7, $8` +
 		`)` +
 		` ON CONFLICT (id) DO ` +
 		`UPDATE SET ` +
-		`org_id = EXCLUDED.org_id, group_id = EXCLUDED.group_id, user_id = EXCLUDED.user_id, metadata = EXCLUDED.metadata, status = EXCLUDED.status, updated_at = EXCLUDED.updated_at `
+		`org_id = EXCLUDED.org_id, group_id = EXCLUDED.group_id, user_did = EXCLUDED.user_did, metadata = EXCLUDED.metadata, status = EXCLUDED.status, updated_at = EXCLUDED.updated_at `
 	// run
-	if err := q.db.ExecRawContext(ctx, sqlstr, r.ID, r.OrgID, r.GroupID, r.UserID, r.Metadata, r.Status, r.CreatedAt, r.UpdatedAt); err != nil {
+	if err := q.db.ExecRawContext(ctx, sqlstr, r.ID, r.OrgID, r.GroupID, r.UserDid, r.Metadata, r.Status, r.CreatedAt, r.UpdatedAt); err != nil {
 		return errors.Wrap(err, "failed to execute upsert stmt")
 	}
 	return nil
@@ -1052,7 +1052,7 @@ func (q OrganizationQ) OrganizationByID(id uuid.UUID, isForUpdate bool) (*data.O
 func (q RequestQ) RequestsByGroupIDCtx(ctx context.Context, groupID uuid.UUID, isForUpdate bool) ([]data.Request, error) {
 	// query
 	sqlstr := `SELECT ` +
-		`id, org_id, group_id, user_id, metadata, status, created_at, updated_at ` +
+		`id, org_id, group_id, user_did, metadata, status, created_at, updated_at ` +
 		`FROM public.requests ` +
 		`WHERE group_id = $1`
 	// run
@@ -1081,7 +1081,7 @@ func (q RequestQ) RequestsByGroupID(groupID uuid.UUID, isForUpdate bool) ([]data
 func (q RequestQ) RequestsByOrgIDCtx(ctx context.Context, orgID uuid.UUID, isForUpdate bool) ([]data.Request, error) {
 	// query
 	sqlstr := `SELECT ` +
-		`id, org_id, group_id, user_id, metadata, status, created_at, updated_at ` +
+		`id, org_id, group_id, user_did, metadata, status, created_at, updated_at ` +
 		`FROM public.requests ` +
 		`WHERE org_id = $1`
 	// run
@@ -1110,7 +1110,7 @@ func (q RequestQ) RequestsByOrgID(orgID uuid.UUID, isForUpdate bool) ([]data.Req
 func (q RequestQ) RequestByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*data.Request, error) {
 	// query
 	sqlstr := `SELECT ` +
-		`id, org_id, group_id, user_id, metadata, status, created_at, updated_at ` +
+		`id, org_id, group_id, user_did, metadata, status, created_at, updated_at ` +
 		`FROM public.requests ` +
 		`WHERE id = $1`
 	// run
@@ -1137,21 +1137,21 @@ func (q RequestQ) RequestByID(id uuid.UUID, isForUpdate bool) (*data.Request, er
 	return q.RequestByIDCtx(context.Background(), id, isForUpdate)
 }
 
-// RequestsByUserIDCtx retrieves a row from 'public.requests' as a Request.
+// RequestsByUserDidCtx retrieves a row from 'public.requests' as a Request.
 //
 // Generated from index 'requests_user_index'.
-func (q RequestQ) RequestsByUserIDCtx(ctx context.Context, userID uuid.NullUUID, isForUpdate bool) ([]data.Request, error) {
+func (q RequestQ) RequestsByUserDidCtx(ctx context.Context, userDid sql.NullString, isForUpdate bool) ([]data.Request, error) {
 	// query
 	sqlstr := `SELECT ` +
-		`id, org_id, group_id, user_id, metadata, status, created_at, updated_at ` +
+		`id, org_id, group_id, user_did, metadata, status, created_at, updated_at ` +
 		`FROM public.requests ` +
-		`WHERE user_id = $1`
+		`WHERE user_did = $1`
 	// run
 	if isForUpdate {
 		sqlstr += " for update"
 	}
 	var res []data.Request
-	err := q.db.SelectRawContext(ctx, &res, sqlstr, userID)
+	err := q.db.SelectRawContext(ctx, &res, sqlstr, userDid)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to exec select")
 	}
@@ -1159,11 +1159,11 @@ func (q RequestQ) RequestsByUserIDCtx(ctx context.Context, userID uuid.NullUUID,
 	return res, nil
 }
 
-// RequestsByUserID retrieves a row from 'public.requests' as a Request.
+// RequestsByUserDid retrieves a row from 'public.requests' as a Request.
 //
 // Generated from index 'requests_user_index'.
-func (q RequestQ) RequestsByUserID(userID uuid.NullUUID, isForUpdate bool) ([]data.Request, error) {
-	return q.RequestsByUserIDCtx(context.Background(), userID, isForUpdate)
+func (q RequestQ) RequestsByUserDid(userDid sql.NullString, isForUpdate bool) ([]data.Request, error) {
+	return q.RequestsByUserDidCtx(context.Background(), userDid, isForUpdate)
 }
 
 // UsersByDidCtx retrieves a row from 'public.users' as a User.

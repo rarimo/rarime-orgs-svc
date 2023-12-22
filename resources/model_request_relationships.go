@@ -5,6 +5,6 @@
 package resources
 
 type RequestRelationships struct {
-	Group        Relation `json:"group"`
-	Organization Relation `json:"organization"`
+	Group        *Relation `json:"group,omitempty"`
+	Organization *Relation `json:"organization,omitempty"`
 }

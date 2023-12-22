@@ -39,6 +39,8 @@ allOf:
               The request status.
 
               `created` – The request was created by the group admin or organization owner or superadmin and hasn't been filled yet by the user.
+              
+              `accepted` – The request was accepted by the user, user entity was created, request filled with `user_did` field. Email and `undefined` user role claims was issued for the user
 
               `filled` – The user filled the request but it hasn't been approved or rejected yet by the group admin or organization owner or superadmin.
 
@@ -51,14 +53,16 @@ allOf:
             enum:
               - name: created
                 value: 0
-              - name: filled
+              - name: accepted
                 value: 1
-              - name: approved
+              - name: filled
                 value: 2
-              - name: rejected
+              - name: approved
                 value: 3
-              - name: submitted
+              - name: rejected
                 value: 4
+              - name: submitted
+                value: 5
           created_at:
             type: string
             format: time.Time
@@ -71,9 +75,6 @@ allOf:
             example: "2021-08-12T13:00:00Z"
       relationships:
         type: object
-        required:
-          - organization
-          - group
         properties:
           organization:
             type: object

@@ -6,12 +6,14 @@ type RequestStatus int32
 
 const (
 	RequestStatus_Created   RequestStatus = 0
-	RequestStatus_Filled    RequestStatus = 1
-	RequestStatus_Approved  RequestStatus = 2
-	RequestStatus_Rejected  RequestStatus = 3
-	RequestStatus_Submitted RequestStatus = 4
+	RequestStatus_Accepted  RequestStatus = 1
+	RequestStatus_Filled    RequestStatus = 2
+	RequestStatus_Approved  RequestStatus = 3
+	RequestStatus_Rejected  RequestStatus = 4
+	RequestStatus_Submitted RequestStatus = 5
 
 	requestStatus_Created_Str   = "created"
+	requestStatus_Accepted_Str  = "accepted"
 	requestStatus_Filled_Str    = "filled"
 	requestStatus_Approved_Str  = "approved"
 	requestStatus_Rejected_Str  = "rejected"
@@ -20,6 +22,7 @@ const (
 
 var requestStatusIntStr = map[RequestStatus]string{
 	RequestStatus_Created:   requestStatus_Created_Str,
+	RequestStatus_Accepted:  requestStatus_Accepted_Str,
 	RequestStatus_Filled:    requestStatus_Filled_Str,
 	RequestStatus_Approved:  requestStatus_Approved_Str,
 	RequestStatus_Rejected:  requestStatus_Rejected_Str,
@@ -28,6 +31,7 @@ var requestStatusIntStr = map[RequestStatus]string{
 
 var requestStatusStrInt = map[string]RequestStatus{
 	requestStatus_Created_Str:   RequestStatus_Created,
+	requestStatus_Accepted_Str:  RequestStatus_Accepted,
 	requestStatus_Filled_Str:    RequestStatus_Filled,
 	requestStatus_Approved_Str:  RequestStatus_Approved,
 	requestStatus_Rejected_Str:  RequestStatus_Rejected,
@@ -62,4 +66,7 @@ func (s *RequestStatus) UnmarshalJSON(b []byte) error {
 
 func (s RequestStatus) Int() int {
 	return int(s)
+}
+func (s RequestStatus) Int16() int16 {
+	return int16(s)
 }

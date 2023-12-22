@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	rules "github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/google/uuid"
 	"github.com/rarimo/rarime-orgs-svc/internal/data"
 	"github.com/rarimo/rarime-orgs-svc/resources"
@@ -29,8 +30,8 @@ func newOrgCreateRequest(r *http.Request) (*resources.OrganizationCreateRequest,
 	}
 
 	return &req, validation.Errors{
-		"data/attributes/domain":    validation.Validate(req.Data.Attributes.Domain, validation.Required),
-		"data/attributes/owner_did": validation.Validate(req.Data.Attributes.OwnerDid, validation.Required),
+		"data/attributes/domain":    validation.Validate(req.Data.Attributes.Domain, validation.Required, rules.URL),
+		"data/attributes/owner_did": validation.Validate(req.Data.Attributes.OwnerDid, validation.Required, ValidationDID),
 	}
 }
 

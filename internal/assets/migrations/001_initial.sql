@@ -80,7 +80,7 @@ create table if not exists requests
     id         uuid primary key                     default gen_random_uuid(),
     org_id     uuid                        not null,
     group_id   uuid                        not null,
-    user_id    uuid,
+    user_did   text,
     metadata   jsonb                       not null default '{}'::jsonb,
     status     smallint                    not null default 0,
     created_at timestamp without time zone not null default now(),
@@ -89,7 +89,7 @@ create table if not exists requests
 
 create index if not exists requests_organization_index on requests using btree (org_id);
 create index if not exists requests_group_index on requests using btree (group_id);
-create index if not exists requests_user_index on requests using btree (user_id);
+create index if not exists requests_user_index on requests using btree (user_did);
 
 create trigger set_updated_at
     before update

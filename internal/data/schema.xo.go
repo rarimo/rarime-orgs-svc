@@ -122,14 +122,14 @@ type Organization struct {
 
 // Request represents a row from 'public.requests'.
 type Request struct {
-	ID        uuid.UUID     `db:"id" json:"id" structs:"-"`                          // id
-	OrgID     uuid.UUID     `db:"org_id" json:"org_id" structs:"org_id"`             // org_id
-	GroupID   uuid.UUID     `db:"group_id" json:"group_id" structs:"group_id"`       // group_id
-	UserID    uuid.NullUUID `db:"user_id" json:"user_id" structs:"user_id"`          // user_id
-	Metadata  xo.Jsonb      `db:"metadata" json:"metadata" structs:"metadata"`       // metadata
-	Status    int16         `db:"status" json:"status" structs:"status"`             // status
-	CreatedAt time.Time     `db:"created_at" json:"created_at" structs:"created_at"` // created_at
-	UpdatedAt time.Time     `db:"updated_at" json:"updated_at" structs:"updated_at"` // updated_at
+	ID        uuid.UUID      `db:"id" json:"id" structs:"-"`                          // id
+	OrgID     uuid.UUID      `db:"org_id" json:"org_id" structs:"org_id"`             // org_id
+	GroupID   uuid.UUID      `db:"group_id" json:"group_id" structs:"group_id"`       // group_id
+	UserDid   sql.NullString `db:"user_did" json:"user_did" structs:"user_did"`       // user_did
+	Metadata  xo.Jsonb       `db:"metadata" json:"metadata" structs:"metadata"`       // metadata
+	Status    int16          `db:"status" json:"status" structs:"status"`             // status
+	CreatedAt time.Time      `db:"created_at" json:"created_at" structs:"created_at"` // created_at
+	UpdatedAt time.Time      `db:"updated_at" json:"updated_at" structs:"updated_at"` // updated_at
 
 }
 

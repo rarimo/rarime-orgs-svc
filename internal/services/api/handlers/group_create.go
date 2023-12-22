@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	rules "github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/google/uuid"
 	"github.com/rarimo/rarime-orgs-svc/internal/data"
 	"github.com/rarimo/rarime-orgs-svc/resources"
@@ -35,7 +36,7 @@ func newGroupCreateRequest(r *http.Request) (*resources.GroupCreateRequest, erro
 	}
 
 	return &req, validation.Errors{
-		"data/attributes/org_id": validation.Validate(req.Data.Attributes.OrgId, validation.Required),
+		"data/attributes/org_id": validation.Validate(req.Data.Attributes.OrgId, validation.Required, rules.UUIDv4),
 	}
 }
 

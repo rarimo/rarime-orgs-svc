@@ -15,8 +15,6 @@ type InvitationEmailAttributes struct {
 	GroupId string `json:"group_id"`
 	// The ID of the organization that the group belongs to
 	OrgId string `json:"org_id"`
-	// The one-time password that the user must use to accept the invitation
-	Otp string `json:"otp"`
 	// The ID of the request that the invitation email is associated with
 	ReqId string `json:"req_id"`
 }

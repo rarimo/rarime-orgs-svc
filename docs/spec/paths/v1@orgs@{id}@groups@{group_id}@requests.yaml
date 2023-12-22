@@ -44,6 +44,7 @@ get:
         type: string
         enum:
           - created
+          - accepted
           - filled
           - approved
           - rejected
