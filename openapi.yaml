@@ -535,6 +535,7 @@ paths:
             type: string
             enum:
               - created
+              - accepted
               - filled
               - approved
               - rejected
@@ -583,6 +584,74 @@ paths:
         '500':
           $ref: '#/components/responses/internalError'
   '/v1/orgs/{id}/groups/{group_id}/requests/{req_id}':
+    get:
+      tags:
+        - Requests
+      summary: Get a request by ID
+      security:
+        - Bearer: []
+      description: |
+        Requires JWT token for specified user with any role but that is in the users list for specified organization.
+        Returns an information about the particular request.
+      operationId: requestByID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the organization
+          schema:
+            type: string
+            example: 3a798290-caf1-496a-a7e5-4db32551b13d
+        - in: path
+          name: group_id
+          required: true
+          description: The ID of the group
+          schema:
+            type: string
+            example: 6c8c1a69-177e-4754-a4e1-d4a7dbf561e8
+        - in: path
+          name: req_id
+          required: true
+          description: The ID of the request
+          schema:
+            type: string
+            example: 9d6a5063-684e-4ab4-b49a-82cdceadf63f
+        - in: query
+          name: include
+          description: 'The resources to include in the response, such as the organization, group'
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - organization
+                - group
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - included
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Request'
+                  included:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/Organization'
+                        - $ref: '#/components/schemas/Group'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalError'
     patch:
       tags:
         - Requests
@@ -1127,7 +1196,6 @@ components:
                 - org_id
                 - group_id
                 - email
-                - otp
                 - created_at
               properties:
                 req_id:
@@ -1146,10 +1214,6 @@ components:
                   type: string
                   description: The email address of the user that the invitation email is sent to
                   example: example@email.com
-                otp:
-                  type: string
-                  description: The one-time password that the user must use to accept the invitation
-                  example: '123456'
                 created_at:
                   type: string
                   format: time.Time
@@ -1360,6 +1424,7 @@ components:
                   description: |
                     The request status.
                     `created` – The request was created by the group admin or organization owner or superadmin and hasn't been filled yet by the user.
+                    `accepted` – The request was accepted by the user, user entity was created, request filled with `user_did` field. Email and `undefined` user role claims was issued for the user
                     `filled` – The user filled the request but it hasn't been approved or rejected yet by the group admin or organization owner or superadmin.
                     `approved` – The request was approved by the group admin or organization owner or superadmin.
                     `rejected` – The request was rejected by the group admin or organization owner or superadmin.
@@ -1368,14 +1433,16 @@ components:
                   enum:
                     - name: created
                       value: 0
-                    - name: filled
+                    - name: accepted
                       value: 1
-                    - name: approved
+                    - name: filled
                       value: 2
-                    - name: rejected
+                    - name: approved
                       value: 3
-                    - name: submitted
+                    - name: rejected
                       value: 4
+                    - name: submitted
+                      value: 5
                 created_at:
                   type: string
                   format: time.Time
@@ -1388,9 +1455,6 @@ components:
                   example: '2021-08-12T13:00:00Z'
             relationships:
               type: object
-              required:
-                - organization
-                - group
               properties:
                 organization:
                   type: object
