@@ -7,10 +7,17 @@ allOf:
     properties:
       attributes:
         required:
-          - metadata
-          - role
+          - approved
         type: object
         properties:
+          approved:
+            type: boolean
+            description: >
+              The approval status of the verification request.
+
+              `true` – The verification request was approved.
+
+              `false` – The verification request was rejected. In that case `metadata` and `role` fields could be empty.
           metadata:
             type: object
             format: json.RawMessage

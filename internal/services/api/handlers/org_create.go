@@ -32,7 +32,7 @@ func newOrgCreateRequest(r *http.Request) (*resources.OrganizationCreateRequest,
 	return &req, validation.Errors{
 		"data/attributes/domain":    validation.Validate(req.Data.Attributes.Domain, validation.Required, rules.URL),
 		"data/attributes/owner_did": validation.Validate(req.Data.Attributes.OwnerDid, validation.Required, ValidationDID),
-	}
+	}.Filter()
 }
 
 func OrgCreate(w http.ResponseWriter, r *http.Request) {

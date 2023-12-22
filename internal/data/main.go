@@ -32,6 +32,7 @@ type GroupQ interface {
 }
 
 type GroupUserQ interface {
+	InsertCtx(ctx context.Context, gu *GroupUser) error
 	SelectCtx(ctx context.Context, groupID uuid.UUID) ([]GroupUser, error)
 }
 
@@ -53,6 +54,7 @@ type UserQ interface {
 	InsertCtx(ctx context.Context, u *User) error
 	SelectCtx(ctx context.Context, selector UsersSelector) ([]User, error)
 	UserByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*User, error)
+	UserByDidCtx(ctx context.Context, did string) (*User, error)
 }
 
 type GorpMigrationQ interface {

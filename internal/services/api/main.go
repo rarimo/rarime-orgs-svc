@@ -56,8 +56,8 @@ func Run(ctx context.Context, cfg config.Config) {
 							r.Get("/", handlers.RequestList)
 							r.Route("/{request_id}", func(r chi.Router) {
 								r.Get("/", handlers.RequestByID)
-								//				r.Patch("/", handlers.RequestFill)
-								//				r.Post("/", handlers.RequestVerify)
+								r.Patch("/", handlers.RequestFill)
+								r.Post("/", handlers.RequestVerify)
 							})
 						})
 					})

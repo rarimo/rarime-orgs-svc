@@ -37,7 +37,7 @@ func newGroupCreateRequest(r *http.Request) (*resources.GroupCreateRequest, erro
 
 	return &req, validation.Errors{
 		"data/attributes/org_id": validation.Validate(req.Data.Attributes.OrgId, validation.Required, rules.UUIDv4),
-	}
+	}.Filter()
 }
 
 func GroupCreate(w http.ResponseWriter, r *http.Request) {

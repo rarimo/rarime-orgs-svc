@@ -59,3 +59,6 @@ func (r *GroupUserRole) UnmarshalJSON(b []byte) error {
 func (r GroupUserRole) Int() int {
 	return int(r)
 }
+func (r GroupUserRole) Int16() int16 {
+	return int16(r)
+}

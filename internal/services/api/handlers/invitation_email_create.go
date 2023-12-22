@@ -129,6 +129,7 @@ func InvitationEmailCreate(w http.ResponseWriter, r *http.Request) {
 		"inv_id":   inv.ID,
 		"org_id":   org.ID,
 		"group_id": group.ID,
+		// TODO: add redirect token to the log
 	}).Debug("new invitation email")
 
 	// TODO: add email sending logic here
