@@ -31,7 +31,7 @@ func (q OrganizationQ) SelectCtx(ctx context.Context, selector data.OrgsSelector
 
 	var orgs []data.Organization
 
-	if err := q.db.SelectContext(ctx, &orgs, (stmt)); err != nil {
+	if err := q.db.SelectContext(ctx, &orgs, stmt); err != nil {
 		return nil, errors.Wrap(err, "failed to select organizations")
 	}
 

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
 	"github.com/rarimo/rarime-orgs-svc/internal/data"
 	"github.com/rarimo/rarime-orgs-svc/resources"
@@ -36,6 +37,15 @@ func newOrgUserListRequest(r *http.Request) (*orgUserListRequest, error) {
 	req.ID, err = orgIDFromRequest(r)
 	if err != nil {
 		return nil, err
+	}
+
+	if req.UserDID != nil {
+		err = validation.Validate(req.UserDID, ValidationDID)
+		if err != nil {
+			return nil, validation.Errors{
+				"filter[user_did]": errors.Wrap(err, "invalid user_did filter value"),
+			}
+		}
 	}
 
 	return &req, nil

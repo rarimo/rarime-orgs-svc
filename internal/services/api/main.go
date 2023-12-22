@@ -49,16 +49,18 @@ func Run(ctx context.Context, cfg config.Config) {
 						r.Post("/", handlers.InvitationEmailCreate)
 						r.Patch("/", handlers.InvitationEmailAccept)
 					})
-					//	r.Route("/requests", func(r chi.Router) {
-					//		r.Group(func(r chi.Router) {
-					//			r.Use(handlers.AuthMiddleware())
-					//			r.Get("/", handlers.RequestList)
-					//			r.Route("/{request_id}", func(r chi.Router) {
-					//				r.Patch("/", handlers.RequestFill)
-					//				r.Post("/", handlers.RequestVerify)
-					//			})
-					//		})
-					//	})
+					r.Route("/requests", func(r chi.Router) {
+						r.Group(func(r chi.Router) {
+							// TODO: add auth middleware for this group of the endpoints
+							//			r.Use(handlers.AuthMiddleware())
+							r.Get("/", handlers.RequestList)
+							//			r.Route("/{request_id}", func(r chi.Router) {
+							//				r.Get("/", handlers.RequestByID)
+							//				r.Patch("/", handlers.RequestFill)
+							//				r.Post("/", handlers.RequestVerify)
+							//			})
+						})
+					})
 				})
 			})
 		})

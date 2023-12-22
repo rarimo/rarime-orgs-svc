@@ -67,6 +67,10 @@ func (s *RequestStatus) UnmarshalJSON(b []byte) error {
 func (s RequestStatus) Int() int {
 	return int(s)
 }
+func (s RequestStatus) IntP() *int {
+	i := int(s)
+	return &i
+}
 func (s RequestStatus) Int16() int16 {
 	return int16(s)
 }

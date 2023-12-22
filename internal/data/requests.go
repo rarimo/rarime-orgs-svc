@@ -3,6 +3,8 @@ package data
 import (
 	"crypto/rand"
 	"fmt"
+	"github.com/google/uuid"
+	"gitlab.com/distributed_lab/kit/pgdb"
 	"math"
 	"math/big"
 
@@ -10,6 +12,18 @@ import (
 )
 
 const MaxDigits = 6
+
+type RequestsSelector struct {
+	OrgID   *uuid.UUID `json:"org_id,omitempty"`
+	GroupID *uuid.UUID `json:"group_id,omitempty"`
+
+	UserDID *string `json:"user_did,omitempty"`
+	Status  *int    `json:"status,omitempty"`
+
+	PageCursor uint64     `json:"page_number,omitempty"`
+	PageSize   uint64     `json:"page_size,omitempty"`
+	Sort       pgdb.Sorts `json:"sort"`
+}
 
 func GenerateOTP() string {
 	bi, err := rand.Int(

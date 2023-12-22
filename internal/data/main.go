@@ -45,6 +45,7 @@ type OrganizationQ interface {
 type RequestQ interface {
 	InsertCtx(ctx context.Context, r *Request) error
 	UpdateCtx(ctx context.Context, r *Request) error
+	SelectCtx(ctx context.Context, selector RequestsSelector) ([]Request, error)
 	RequestByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*Request, error)
 }
 
