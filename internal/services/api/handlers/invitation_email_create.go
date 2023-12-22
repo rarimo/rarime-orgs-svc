@@ -99,6 +99,14 @@ func InvitationEmailCreate(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: time.Now().UTC(),
 	}
 
+	Log(r).WithFields(logan.F{
+		"otp":      inv.Otp,
+		"email":    req.Data.Attributes.Email,
+		"inv_id":   inv.ID,
+		"org_id":   org.ID,
+		"group_id": group.ID,
+	}).Debug("new invitation email")
+
 	err = Storage(r).Transaction(func() error {
 		err = Storage(r).RequestQ().InsertCtx(r.Context(), &request)
 		if err != nil {
