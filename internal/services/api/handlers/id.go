@@ -11,12 +11,31 @@ import (
 
 func orgIDFromRequest(r *http.Request) (uuid.UUID, error) {
 	rawID := chi.URLParam(r, "id")
-	return parseUUID(rawID)
+	id, err := parseUUID(rawID)
+	if err != nil {
+		return uuid.UUID{}, errors.Wrap(err, "failed to parse organization id")
+	}
+
+	return id, nil
 }
 
 func groupIDFromRequest(r *http.Request) (uuid.UUID, error) {
 	rawID := chi.URLParam(r, "group_id")
-	return parseUUID(rawID)
+	id, err := parseUUID(rawID)
+	if err != nil {
+		return uuid.UUID{}, errors.Wrap(err, "failed to parse group id")
+	}
+
+	return id, nil
+}
+
+func reqIDFromRequest(r *http.Request) (uuid.UUID, error) {
+	rawID := chi.URLParam(r, "req_id")
+	id, err := parseUUID(rawID)
+	if err != nil {
+		return uuid.UUID{}, errors.Wrap(err, "failed to parse request id")
+	}
+	return id, nil
 }
 
 func parseUUID(rawID string) (uuid.UUID, error) {

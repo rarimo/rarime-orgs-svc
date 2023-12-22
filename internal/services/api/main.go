@@ -54,11 +54,11 @@ func Run(ctx context.Context, cfg config.Config) {
 							// TODO: add auth middleware for this group of the endpoints
 							//			r.Use(handlers.AuthMiddleware())
 							r.Get("/", handlers.RequestList)
-							//			r.Route("/{request_id}", func(r chi.Router) {
-							//				r.Get("/", handlers.RequestByID)
-							//				r.Patch("/", handlers.RequestFill)
-							//				r.Post("/", handlers.RequestVerify)
-							//			})
+							r.Route("/{request_id}", func(r chi.Router) {
+								r.Get("/", handlers.RequestByID)
+								//				r.Patch("/", handlers.RequestFill)
+								//				r.Post("/", handlers.RequestVerify)
+							})
 						})
 					})
 				})
