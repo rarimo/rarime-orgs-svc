@@ -44,13 +44,13 @@
           {
             "in": "query",
             "name": "filter[status]",
-            "description": "Filter organizations by status",
+            "description": "Filter organizations by status. 0 - unverified, 1 - verified",
             "required": false,
             "schema": {
               "type": "string",
               "enum": [
-                "unverified",
-                "verified"
+                0,
+                1
               ]
             }
           },
@@ -794,16 +794,16 @@
             "in": "query",
             "name": "filter[status]",
             "required": false,
-            "description": "Filter requests by status.\n\nRequires JWT token with the organization owner or group admin or superadmin permissions or JWT token for \nspecified user with any role but that is in the users list for specified organization.\n",
+            "description": "Filter requests by status.\n\nRequires JWT token with the organization owner or group admin or superadmin permissions or JWT token for \nspecified user with any role but that is in the users list for specified organization.\n\n0 – created\n1 – accepted\n2 – filled\n3 – approved\n4 – rejected\n5 – submitted\n",
             "schema": {
               "type": "string",
               "enum": [
-                "created",
-                "accepted",
-                "filled",
-                "approved",
-                "rejected",
-                "submitted"
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
               ]
             }
           },
@@ -1506,16 +1506,10 @@
               "attributes": {
                 "type": "object",
                 "required": [
-                  "org_id",
                   "metadata",
                   "rules"
                 ],
                 "properties": {
-                  "org_id": {
-                    "type": "string",
-                    "description": "The ID of the organization that the group belongs to",
-                    "example": "3a798290-caf1-496a-a7e5-4db32551b13d"
-                  },
                   "metadata": {
                     "type": "object",
                     "format": "json.RawMessage",
@@ -2299,30 +2293,13 @@
                     }
                   },
                   "role": {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/Enum"
-                      }
-                    ],
-                    "description": "The role of the group user.\n`undefined` – The group user that was created but hasn't been verified yet by the organization owner or group admin or superadmin.\n`employee` – The group user that was verified by the organization owner or group admin or superadmin by verifying verification request.\n`admin` – The group user that was verified by the organization owner or group admin or superadmin as admin and has the ability to verify other group users.\n`superadmin` – The group user that was verified by the superadmin as superadmin and has the ability to verify other group users and has the highest permissions in the group.\n",
-                    "format": "GroupUserRole",
+                    "type": "string",
+                    "description": "The role of the group user.\n0 - `undefined` – The group user that was created but hasn't been verified yet by the organization owner or group admin or superadmin.\n1 - `employee` – The group user that was verified by the organization owner or group admin or superadmin by verifying verification request.\n2 - `admin` – The group user that was verified by the organization owner or group admin or superadmin as admin and has the ability to verify other group users.\n3 - `superadmin` – The group user that was verified by the superadmin as superadmin and has the ability to verify other group users and has the highest permissions in the group.\n",
                     "enum": [
-                      {
-                        "name": "undefined",
-                        "value": 0
-                      },
-                      {
-                        "name": "employee",
-                        "value": 1
-                      },
-                      {
-                        "name": "admin",
-                        "value": 2
-                      },
-                      {
-                        "name": "superadmin",
-                        "value": 3
-                      }
+                      0,
+                      1,
+                      2,
+                      3
                     ]
                   }
                 }
