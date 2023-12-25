@@ -10,7 +10,7 @@ on:
     #tags:
     #  - v*
     branches:
-      - feature/init # TODO: change to main
+      - main
 
 jobs:
   deploy_pages:
