@@ -37,6 +37,7 @@ type GroupUserQ interface {
 }
 
 type OrganizationQ interface {
+	New() OrganizationQ
 	InsertCtx(ctx context.Context, o *Organization) error
 	UpdateCtx(ctx context.Context, o *Organization) error
 	SelectCtx(ctx context.Context, selector OrgsSelector) ([]Organization, error)
