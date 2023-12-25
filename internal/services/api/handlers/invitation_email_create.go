@@ -7,6 +7,7 @@ import (
 	rules "github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/google/uuid"
 	"github.com/rarimo/rarime-orgs-svc/internal/data"
+	"github.com/rarimo/rarime-orgs-svc/internal/notificator"
 	"github.com/rarimo/rarime-orgs-svc/resources"
 	"github.com/rarimo/xo/types/xo"
 	"gitlab.com/distributed_lab/ape"
@@ -123,16 +124,31 @@ func InvitationEmailCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Log(r).WithFields(logan.F{
-		"otp":      inv.Otp,
+	token := notificator.SendVerifyEmailParams{
+		OrgID:         org.ID.String(),
+		GroupID:       group.ID.String(),
+		InviteEmailID: inv.ID.String(),
+		OTP:           inv.Otp,
+	}.Base64()
+
+	f := logan.F{
 		"email":    req.Data.Attributes.Email,
 		"inv_id":   inv.ID,
 		"org_id":   org.ID,
 		"group_id": group.ID,
-		// TODO: add redirect token to the log
-	}).Debug("new invitation email")
+	}
 
-	// TODO: add email sending logic here
+	Log(r).WithFields(f.Merge(logan.F{
+		"otp":   inv.Otp,
+		"token": token,
+	})).Debug("new invitation email")
+
+	if err = Notificator(r).SendVerifyEmail(r.Context(), req.Data.Attributes.Email, token); err != nil {
+		Log(r).WithError(err).WithFields(f).Error("failed to send verify email")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
 	resp := resources.InvitationEmailResponse{
 		Data:     populateInvitationEmail(inv),
 		Included: resources.Included{},
