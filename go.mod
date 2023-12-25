@@ -9,7 +9,7 @@ require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.2.1
 	github.com/google/jsonapi v0.0.0-20200226002910-c8283f632fb7
 	github.com/google/uuid v1.5.0
-	github.com/iden3/go-iden3-core v1.0.2
+	github.com/iden3/go-iden3-core/v2 v2.0.3
 	github.com/rarimo/xo v1.0.6-0.20231005111658-6ba1ce8f056a
 	github.com/rubenv/sql-migrate v1.5.2
 	gitlab.com/distributed_lab/ape v1.7.1
@@ -32,14 +32,12 @@ require (
 	github.com/go-errors/errors v1.5.1 // indirect
 	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/iden3/go-iden3-crypto v0.0.15 // indirect
 	github.com/jmoiron/sqlx v1.2.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/lib/pq v1.10.7 // indirect
 	github.com/magiconair/properties v1.8.0 // indirect
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
-	github.com/mr-tron/base58 v1.2.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/pelletier/go-toml v1.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

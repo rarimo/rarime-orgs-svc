@@ -40,15 +40,22 @@ get:
         
         Requires JWT token with the organization owner or group admin or superadmin permissions or JWT token for 
         specified user with any role but that is in the users list for specified organization.
+        
+        0 – created
+        1 – accepted
+        2 – filled
+        3 – approved
+        4 – rejected
+        5 – submitted
       schema:
         type: string
         enum:
-          - created
-          - accepted
-          - filled
-          - approved
-          - rejected
-          - submitted
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
     - $ref: '#/components/parameters/pageLimitParam'
     - $ref: '#/components/parameters/sortingParam'
     - $ref: '#/components/parameters/pageCursorParam'

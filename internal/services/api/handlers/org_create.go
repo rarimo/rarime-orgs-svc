@@ -43,14 +43,17 @@ func OrgCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	orgID := uuid.New()
+
 	owner := data.User{
 		ID:        uuid.New(),
+		OrgID:     orgID,
 		Did:       req.Data.Attributes.OwnerDid,
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 	}
 	org := data.Organization{
-		ID:           uuid.New(),
+		ID:           orgID,
 		Owner:        owner.ID,
 		MembersCount: 1,
 		Domain:       req.Data.Attributes.Domain,

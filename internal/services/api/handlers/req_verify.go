@@ -115,7 +115,7 @@ func RequestVerify(w http.ResponseWriter, r *http.Request) {
 			ID:        uuid.New(),
 			GroupID:   request.GroupID,
 			UserID:    user.ID,
-			Role:      req.Data.Attributes.Role.Int16(),
+			Role:      resources.GroupUserRoleFromString(*req.Data.Attributes.Role).Int16(),
 			CreatedAt: time.Now().UTC(),
 			UpdatedAt: time.Now().UTC(),
 		}

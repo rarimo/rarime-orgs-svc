@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	rules "github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/google/uuid"
 	"github.com/rarimo/rarime-orgs-svc/internal/data"
 	"github.com/rarimo/rarime-orgs-svc/resources"
@@ -16,44 +15,41 @@ import (
 	"time"
 )
 
-func newGroupCreateRequest(r *http.Request) (*resources.GroupCreateRequest, error) {
+func newGroupCreateRequest(r *http.Request) (*uuid.UUID, *resources.GroupCreateRequest, error) {
 	var req resources.GroupCreateRequest
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, errors.Wrap(err, "failed to decode body")
+	orgID, err := orgIDFromRequest(r)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, nil, errors.Wrap(err, "failed to decode body")
 	}
 
 	if valid := json.Valid(req.Data.Attributes.Metadata); !valid {
-		return nil, validation.Errors{
+		return nil, nil, validation.Errors{
 			"data/attributes/metadata": errors.New("invalid metadata json"),
 		}
 	}
 
 	if valid := json.Valid(req.Data.Attributes.Rules); !valid {
-		return nil, validation.Errors{
+		return nil, nil, validation.Errors{
 			"data/attributes/rules": errors.New("invalid rules json"),
 		}
 	}
 
-	return &req, validation.Errors{
-		"data/attributes/org_id": validation.Validate(req.Data.Attributes.OrgId, validation.Required, rules.UUIDv4),
-	}.Filter()
+	return &orgID, &req, nil
 }
 
 func GroupCreate(w http.ResponseWriter, r *http.Request) {
-	req, err := newGroupCreateRequest(r)
+	orgID, req, err := newGroupCreateRequest(r)
 	if err != nil {
 		ape.RenderErr(w, problems.BadRequest(err)...)
 		return
 	}
 
-	orgID, err := parseUUID(req.Data.Attributes.OrgId)
-	if err != nil {
-		ape.RenderErr(w, problems.BadRequest(err)...)
-		return
-	}
-
-	org, err := Storage(r).OrganizationQ().OrganizationByIDCtx(r.Context(), orgID, false)
+	org, err := Storage(r).OrganizationQ().OrganizationByIDCtx(r.Context(), *orgID, false)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to get organization", logan.F{
 			"org_id": orgID,
@@ -63,12 +59,18 @@ func GroupCreate(w http.ResponseWriter, r *http.Request) {
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
+	if org.Status != resources.OrganizationStatus_Verified.Int16() {
+		ape.RenderErr(w, problems.BadRequest(validation.Errors{
+			"id": errors.Errorf("organization: %s is not verified", org.ID),
+		})...)
+		return
+	}
 
 	// TODO: add auth for role "owner" or "superadmin"
 
 	group := data.Group{
 		ID:        uuid.New(),
-		OrgID:     orgID,
+		OrgID:     *orgID,
 		Metadata:  xo.Jsonb(req.Data.Attributes.Metadata),
 		Rules:     xo.Jsonb(req.Data.Attributes.Rules),
 		CreatedAt: time.Now().UTC(),

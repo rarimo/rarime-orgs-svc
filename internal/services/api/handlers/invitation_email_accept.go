@@ -36,9 +36,9 @@ func newInvitationEmailAcceptRequest(r *http.Request) (*uuid.UUID, *uuid.UUID, *
 
 	return &orgID, &groupID, &req, validation.Errors{
 		"data/id":                  validation.Validate(req.Data.ID, validation.Required, rules.UUID),
-		"data/attributes/otp":      validation.Validate(req.Data.Attributes.Otp, validation.Required, rules.Digit),
+		"data/attributes/otp":      validation.Validate(req.Data.Attributes.Otp, validation.Required, validation.Length(data.MaxDigits, data.MaxDigits), rules.Digit),
 		"data/attributes/user_did": validation.Validate(req.Data.Attributes.UserDid, validation.Required, ValidationDID),
-	}
+	}.Filter()
 }
 
 func InvitationEmailAccept(w http.ResponseWriter, r *http.Request) {
@@ -56,6 +56,12 @@ func InvitationEmailAccept(w http.ResponseWriter, r *http.Request) {
 	}
 	if org == nil {
 		ape.RenderErr(w, NotFound(fmt.Sprintf("Organization with ID: %s not exist", orgID), "id"))
+		return
+	}
+	if org.Status != resources.OrganizationStatus_Verified.Int16() {
+		ape.RenderErr(w, problems.BadRequest(validation.Errors{
+			"id": errors.Errorf("organization: %s is not verified", org.ID),
+		})...)
 		return
 	}
 

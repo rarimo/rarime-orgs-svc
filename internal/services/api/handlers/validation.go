@@ -2,7 +2,7 @@ package handlers
 
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/iden3/go-iden3-core"
+	corev2 "github.com/iden3/go-iden3-core/v2/w3c"
 )
 
 var (
@@ -11,6 +11,6 @@ var (
 )
 
 func isDID(value string) bool {
-	_, err := core.ParseDID(value)
+	_, err := corev2.ParseDID(value)
 	return err == nil
 }

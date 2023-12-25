@@ -8,14 +8,9 @@ allOf:
       attributes:
         type: object
         required:
-          - org_id
           - metadata
           - rules
         properties:
-          org_id:
-            type: string
-            description: The ID of the organization that the group belongs to
-            example: "3a798290-caf1-496a-a7e5-4db32551b13d"
           metadata:
             type: object
             format: json.RawMessage

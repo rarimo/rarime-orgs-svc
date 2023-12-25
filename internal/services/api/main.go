@@ -36,29 +36,30 @@ func Run(ctx context.Context, cfg config.Config) {
 				r.Get("/users", handlers.OrgUserList)
 				r.Post("/", handlers.OrgVerify)
 				r.Get("/verification-code", handlers.OrgVerificationCode)
-			})
-			r.Route("/groups", func(r chi.Router) {
-				r.Get("/", handlers.GroupList)
-				// TODO: add auth middleware for group create endpoint
-				//r.With(handlers.AuthMiddleware()).Post("/", handlers.GroupCreate)
-				r.Post("/", handlers.GroupCreate)
-				r.Route("/{group_id}", func(r chi.Router) {
-					r.Get("/", handlers.GroupByID)
-					r.Route("/emails", func(r chi.Router) {
-						// TODO: add auth middleware for the invitation email create
-						//r.With(handlers.AuthMiddleware()).Post("/", handlers.InvitationEmailCreate)
-						r.Post("/", handlers.InvitationEmailCreate)
-						r.Patch("/", handlers.InvitationEmailAccept)
-					})
-					r.Route("/requests", func(r chi.Router) {
-						r.Group(func(r chi.Router) {
-							// TODO: add auth middleware for this group of the endpoints
-							//			r.Use(handlers.AuthMiddleware())
-							r.Get("/", handlers.RequestList)
-							r.Route("/{request_id}", func(r chi.Router) {
-								r.Get("/", handlers.RequestByID)
-								r.Patch("/", handlers.RequestFill)
-								r.Post("/", handlers.RequestVerify)
+
+				r.Route("/groups", func(r chi.Router) {
+					r.Get("/", handlers.GroupList)
+					// TODO: add auth middleware for group create endpoint
+					//r.With(handlers.AuthMiddleware()).Post("/", handlers.GroupCreate)
+					r.Post("/", handlers.GroupCreate)
+					r.Route("/{group_id}", func(r chi.Router) {
+						r.Get("/", handlers.GroupByID)
+						r.Route("/emails", func(r chi.Router) {
+							// TODO: add auth middleware for the invitation email create
+							//r.With(handlers.AuthMiddleware()).Post("/", handlers.InvitationEmailCreate)
+							r.Post("/", handlers.InvitationEmailCreate)
+							r.Patch("/", handlers.InvitationEmailAccept)
+						})
+						r.Route("/requests", func(r chi.Router) {
+							r.Group(func(r chi.Router) {
+								// TODO: add auth middleware for this group of the endpoints
+								//			r.Use(handlers.AuthMiddleware())
+								r.Get("/", handlers.RequestList)
+								r.Route("/{req_id}", func(r chi.Router) {
+									r.Get("/", handlers.RequestByID)
+									r.Patch("/", handlers.RequestFill)
+									r.Post("/", handlers.RequestVerify)
+								})
 							})
 						})
 					})

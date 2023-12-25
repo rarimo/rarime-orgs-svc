@@ -22,13 +22,13 @@ get:
         example: "did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg"
     - in: query
       name: 'filter[status]'
-      description: Filter organizations by status
+      description: Filter organizations by status. 0 - unverified, 1 - verified
       required: false
       schema:
         type: string
         enum:
-          - unverified
-          - verified
+          - 0
+          - 1
     - $ref: '#/components/parameters/pageLimitParam'
     - $ref: '#/components/parameters/pageCursorParam'
     - $ref: '#/components/parameters/sortingParam'

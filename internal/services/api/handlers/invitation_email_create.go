@@ -45,7 +45,7 @@ func newInvitationEmailCreateRequest(r *http.Request) (*uuid.UUID, *uuid.UUID, *
 
 	return &orgID, &groupID, &req, validation.Errors{
 		"data/attributes/email": validation.Validate(req.Data.Attributes.Email, validation.Required, rules.EmailFormat),
-	}
+	}.Filter()
 }
 
 func InvitationEmailCreate(w http.ResponseWriter, r *http.Request) {
@@ -64,6 +64,12 @@ func InvitationEmailCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	if org == nil {
 		ape.RenderErr(w, NotFound(fmt.Sprintf("Organization with ID: %s not exist", orgID), "id"))
+		return
+	}
+	if org.Status != resources.OrganizationStatus_Verified.Int16() {
+		ape.RenderErr(w, problems.BadRequest(validation.Errors{
+			"id": errors.Errorf("organization: %s is not verified", org.ID),
+		})...)
 		return
 	}
 
