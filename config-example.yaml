@@ -5,6 +5,16 @@ log:
 listener:
   addr: :8000
 
+issuer:
+  base_url: ""
+  auth_username: ""
+  auth_password: ""
+  schema_type: ""
+  schema_url: ""
+
+orgs:
+  verify_domain: false
+
 db:
   url: postgres://orgs:orgs@localhost:15432/orgs-db?sslmode=disable
 
