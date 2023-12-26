@@ -63,7 +63,7 @@ func OrgUserList(w http.ResponseWriter, r *http.Request) {
 		OrgID:      &req.ID,
 		DID:        req.UserDID,
 		PageCursor: req.PageCursor,
-		PageSize:   req.PageLimit,
+		PageLimit:  req.PageLimit,
 		Sort:       req.Sorts,
 	})
 	if err != nil {

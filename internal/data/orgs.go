@@ -10,7 +10,7 @@ type OrgsSelector struct {
 	UserDID *string    `json:"user_did,omitempty"`
 	Status  *int       `json:"status,omitempty"`
 
-	PageCursor uint64     `json:"page_number,omitempty"`
-	PageSize   uint64     `json:"page_size,omitempty"`
+	PageCursor uint64     `json:"page_cursor,omitempty"`
+	PageLimit  uint64     `json:"page_limit,omitempty"`
 	Sort       pgdb.Sorts `json:"sort"`
 }

@@ -136,7 +136,7 @@ func createRequestsSelector(req *requestListRequest) data.RequestsSelector {
 		GroupID:    &req.GroupID,
 		UserDID:    req.UserDID,
 		PageCursor: req.PageCursor,
-		PageSize:   req.PageLimit,
+		PageLimit:  req.PageLimit,
 		Sort:       req.Sorts,
 	}
 
