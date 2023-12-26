@@ -11,40 +11,16 @@ var (
 	ErrUnexpectedStatusCode = errors.New("unexpected status code")
 )
 
-const (
-	issueEndpoint = "/credentials"
-)
-
 type ClaimType string
 
 func (c ClaimType) String() string {
 	return string(c)
 }
 
-const (
-	ClaimTypeNaturalPerson     ClaimType = "NaturalPerson"
-	ClaimTypeIdentityProviders ClaimType = "IdentityProviders"
-
-	EmptyStringField  = "none"
-	EmptyIntegerField = 0
-)
-
 type IdentityProviderName string
 
 func (ipn IdentityProviderName) String() string {
 	return string(ipn)
-}
-
-const (
-	UnstoppableDomainsProviderName IdentityProviderName = "UnstoppableDomains"
-	CivicProviderName              IdentityProviderName = "Civic"
-	GitcoinProviderName            IdentityProviderName = "GitcoinPassport"
-	WorldCoinProviderName          IdentityProviderName = "Worldcoin"
-	KlerosProviderName             IdentityProviderName = "Kleros"
-)
-
-type IsNaturalPersonCredentialSubject struct {
-	IsNatural string `json:"is_natural"`
 }
 
 type IdentityProvidersCredentialSubject struct {
@@ -53,32 +29,6 @@ type IdentityProvidersCredentialSubject struct {
 	IsNatural        int64                `json:"isNatural"`
 	Address          string               `json:"address"`
 	ProviderMetadata string               `json:"providerMetadata"`
-}
-
-type IdentityProviderMetadata struct {
-	GitcoinPassportData      GitcoinPassportData `json:"gitcoinPassportData,omitempty"`
-	WorldCoinData            WorldCoinData       `json:"worldcoinData,omitempty"`
-	UnstoppableDomain        string              `json:"unstoppableDomain,omitempty"`
-	CivicGatekeeperNetworkID int64               `json:"civicGatekeeperNetworkId,omitempty"`
-}
-
-type GitcoinPassportData struct {
-	Score          string `json:"score"`
-	AdditionalData string `json:"additionalData"`
-}
-
-type WorldCoinData struct {
-	Score          string `json:"score"`
-	AdditionalData string `json:"additionalData"`
-}
-
-func NewEmptyIdentityProvidersCredentialSubject() *IdentityProvidersCredentialSubject {
-	return &IdentityProvidersCredentialSubject{
-		IdentityID: EmptyStringField,
-		Provider:   EmptyStringField,
-		IsNatural:  EmptyIntegerField,
-		Address:    EmptyStringField,
-	}
 }
 
 type IssueClaimResponse struct {
