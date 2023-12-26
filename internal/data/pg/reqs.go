@@ -24,7 +24,7 @@ func (q RequestQ) SelectCtx(ctx context.Context, selector data.RequestsSelector)
 		stmt = stmt.Where(squirrel.Eq{"status": selector.Status})
 	}
 
-	stmt = applyPagination(stmt, selector.Sort, selector.PageSize, selector.PageCursor)
+	stmt = applyPagination(stmt, selector.Sort, selector.PageLimit, selector.PageCursor)
 
 	var requests []data.Request
 

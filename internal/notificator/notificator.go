@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	MailChipAPIBaseURL = "https://mandrillapp.com/api/1.0/"
+	MailChimpAPIBaseURL = "https://mandrillapp.com/api/1.0/"
 )
 
 type Notificator interface {

@@ -8,7 +8,7 @@ import (
 type GroupsSelector struct {
 	OrgID *uuid.UUID `json:"owner,omitempty"`
 
-	PageCursor uint64     `json:"page_number,omitempty"`
-	PageSize   uint64     `json:"page_size,omitempty"`
+	PageCursor uint64     `json:"page_cursor,omitempty"`
+	PageLimit  uint64     `json:"page_limit,omitempty"`
 	Sort       pgdb.Sorts `json:"sort"`
 }

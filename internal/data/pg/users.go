@@ -23,7 +23,7 @@ func (q UserQ) SelectCtx(ctx context.Context, selector data.UsersSelector) ([]da
 		stmt = stmt.Where(squirrel.Eq{"role": selector.Role})
 	}
 
-	stmt = applyPagination(stmt, selector.Sort, selector.PageSize, selector.PageCursor)
+	stmt = applyPagination(stmt, selector.Sort, selector.PageLimit, selector.PageCursor)
 
 	var users []data.User
 

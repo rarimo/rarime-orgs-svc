@@ -51,7 +51,7 @@ func GroupList(w http.ResponseWriter, r *http.Request) {
 	groups, err := Storage(r).GroupQ().SelectCtx(r.Context(), data.GroupsSelector{
 		OrgID:      &req.OrgID,
 		PageCursor: req.PageCursor,
-		PageSize:   req.PageLimit,
+		PageLimit:  req.PageLimit,
 		Sort:       req.Sorts,
 	})
 	if err != nil {

@@ -132,7 +132,7 @@ func createOrgsSelector(request *orgListRequest) data.OrgsSelector {
 		Owner:      request.Owner,
 		UserDID:    request.UserDID,
 		PageCursor: request.PageCursor,
-		PageSize:   request.PageLimit,
+		PageLimit:  request.PageLimit,
 		Sort:       request.Sorts,
 	}
 

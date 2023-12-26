@@ -91,7 +91,7 @@ func (n notificator) SendVerifyEmail(ctx context.Context, email, token string) e
 	req, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodPost,
-		MailChipAPIBaseURL,
+		MailChimpAPIBaseURL,
 		bytes.NewBuffer(body),
 	)
 	if err != nil {
