@@ -7,7 +7,6 @@ allOf:
       attributes:
         type: object
         required:
-          - owner
           - domain
           - metadata
           - status
@@ -20,10 +19,6 @@ allOf:
             type: string
             description: The DID of the organization, can be empty for the organizations with the status `unverified`
             example: "did:iden3:readonly:tUDjWxnVJNi7t3FudukqrUcNwF5KVGoWgim5pp2jV"
-          owner:
-            type: string
-            description: The ID of the user who is owner of the organization
-            example: "81c32ef4-2878-4f86-9277-4c3c82913b87"
           domain:
             type: string
             description: The domain of the organization
