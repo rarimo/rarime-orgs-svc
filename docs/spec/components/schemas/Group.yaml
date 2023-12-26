@@ -1,0 +1,50 @@
+allOf:
+  - $ref: '#/components/schemas/GroupKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - org_id
+          - metadata
+          - rules
+          - created_at
+        properties:
+          org_id:
+            type: string
+            description: The ID of the organization that the group belongs to
+            example: "3a798290-caf1-496a-a7e5-4db32551b13d"
+          metadata:
+            type: object
+            format: json.RawMessage
+            description: JSON object containing the metadata information of the group
+            example:
+              $ref: '#/components/examples/groupMetadata'
+          rules:
+            type: object
+            format: json.RawMessage
+            description: JSON object containing the rules of the group, which will be used to generate claims for the group members
+            example:
+              $ref: '#/components/examples/groupRules'
+          created_at:
+            type: string
+            format: time.Time
+            description: The time (UTC) that the group was created in RFC3339 format
+            example: "2021-08-12T14:00:00Z"
+      relationships:
+        type: object
+        required:
+          - group_users
+        properties:
+          group_users:
+            type: object
+            description: The users of the group
+            required:
+              - data
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupUserKey'

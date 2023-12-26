@@ -1,0 +1,43 @@
+allOf:
+  - $ref: '#/components/schemas/RequestVerifyKey'
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        required:
+          - approved
+        type: object
+        properties:
+          approved:
+            type: boolean
+            description: >
+              The approval status of the verification request.
+
+              `true` – The verification request was approved.
+
+              `false` – The verification request was rejected. In that case `metadata` and `role` fields could be empty.
+          metadata:
+            type: object
+            format: json.RawMessage
+            description: JSON object containing the metadata information of the request
+            example:
+              $ref: '#/components/examples/requestMetadata'
+          role:
+            type: string
+            description: >
+              The role of the group user.
+
+              0 - `undefined` – The group user that was created but hasn't been verified yet by the organization owner or group admin or superadmin.
+
+              1 - `employee` – The group user that was verified by the organization owner or group admin or superadmin by verifying verification request.
+
+              2 - `admin` – The group user that was verified by the organization owner or group admin or superadmin as admin and has the ability to verify other group users.
+
+              3 - `superadmin` – The group user that was verified by the superadmin as superadmin and has the ability to verify other group users and has the highest permissions in the group.
+            enum:
+              - 0
+              - 1
+              - 2
+              - 3

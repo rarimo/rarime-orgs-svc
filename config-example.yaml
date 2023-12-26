@@ -1,0 +1,13 @@
+log:
+  disable_sentry: true
+  level: debug
+
+listener:
+  addr: :8000
+
+db:
+  url: postgres://orgs:orgs@localhost:15432/orgs-db?sslmode=disable
+
+notificator:
+  app_base_url: https://app.rarime.com
+  api_key: "" # https://mailchimp.com/developer/transactional/guides/quick-start/#generate-your-api-key

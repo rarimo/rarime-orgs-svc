@@ -1,0 +1,101 @@
+get:
+  tags:
+    - Requests
+  summary: Requests list
+  security:
+    - Bearer: []
+  description: |
+    Returns list of requests associated with the provided group and organization.
+  operationId: getRequests
+  parameters:
+    - in: path
+      name: 'id'
+      required: true
+      description: The ID of the organization
+      schema:
+        type: string
+        example: "3a798290-caf1-496a-a7e5-4db32551b13d"
+    - in: path
+      name: 'group_id'
+      required: true
+      description: The ID of the group
+      schema:
+        type: string
+        example: "6c8c1a69-177e-4754-a4e1-d4a7dbf561e8"
+    - in: query
+      name: 'filter[user_did]'
+      required: false
+      description: |
+        Filter requests for the specified user DID.
+        
+        Requires JWT token for specified user with any role but that is in the users list for specified organization.
+      schema:
+        type: string
+        example: "did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg"
+    - in: query
+      name: 'filter[status]'
+      required: false
+      description: |
+        Filter requests by status.
+        
+        Requires JWT token with the organization owner or group admin or superadmin permissions or JWT token for 
+        specified user with any role but that is in the users list for specified organization.
+        
+        0 – created
+        1 – accepted
+        2 – filled
+        3 – approved
+        4 – rejected
+        5 – submitted
+      schema:
+        type: string
+        enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+    - $ref: '#/components/parameters/pageLimitParam'
+    - $ref: '#/components/parameters/sortingParam'
+    - $ref: '#/components/parameters/pageCursorParam'
+    - in: query
+      name: 'include'
+      description: The resources to include in the response, such as the organization, group.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - organization
+            - group
+  responses:
+    200:
+      description: Success
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            required:
+              - data
+              - included
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+              included:
+                type: array
+                items:
+                  oneOf:
+                    - $ref: '#/components/schemas/Organization'
+                    - $ref: '#/components/schemas/Group'
+    400:
+      $ref: '#/components/responses/invalidParameter'
+    401:
+      $ref: '#/components/responses/invalidAuth'
+    404:
+      $ref: '#/components/responses/notFound'
+    500:
+      $ref: '#/components/responses/internalError'

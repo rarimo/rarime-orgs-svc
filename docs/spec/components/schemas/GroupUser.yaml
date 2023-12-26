@@ -1,0 +1,56 @@
+allOf:
+  - $ref: '#/components/schemas/GroupUserKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - group_id
+          - user_id
+          - role
+          - created_at
+          - updated_at
+        properties:
+          group_id:
+            type: string
+            description: The ID of the group that the user belongs to
+            example: "6c8c1a69-177e-4754-a4e1-d4a7dbf561e8"
+          user_id:
+            type: string
+            description: The ID of the user that belongs to the group user
+            example: '81c32ef4-2878-4f86-9277-4c3c82913b87'
+          role:
+            allOf:
+              - $ref: '#/components/schemas/Enum'
+            description: >
+              The role of the group user.
+
+              `undefined` – The group user that was created but hasn't been verified yet by the organization owner or group admin or superadmin.
+
+              `employee` – The group user that was verified by the organization owner or group admin or superadmin by verifying verification request.
+
+              `admin` – The group user that was verified by the organization owner or group admin or superadmin as admin and has the ability to verify other group users.
+
+              `superadmin` – The group user that was verified by the superadmin as superadmin and has the ability to verify other group users and has the highest permissions in the group.
+            format: GroupUserRole
+            enum:
+              - name: undefined
+                value: 0
+              - name: employee
+                value: 1
+              - name: admin
+                value: 2
+              - name: superadmin
+                value: 3
+          created_at:
+            type: string
+            format: time.Time
+            description: The time (UTC) that the group user was created in RFC3339 format
+            example: "2021-08-13T14:00:00Z"
+          updated_at:
+            type: string
+            format: time.Time
+            description: The time (UTC) that the group user was updated in RFC3339 format
+            example: "2021-08-15T13:00:00Z"

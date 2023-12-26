@@ -1,0 +1,28 @@
+allOf:
+  - $ref: '#/components/schemas/OrganizationCreateKey'
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        required:
+          - owner_did
+          - domain
+          - metadata
+        type: object
+        properties:
+          owner_did:
+            type: string
+            description: The DID of the owner of the organization
+            example: "did:iden3:readonly:tM1QCJ7ytcbvLB7EFQhGsJPumc11DEE18gEvAzxE7"
+          domain:
+            type: string
+            example: "https://organization-domain.com"
+            description: "The domain of the organization"
+          metadata:
+            type: object
+            format: json.RawMessage
+            description: JSON object containing the metadata information of the organization
+            example:
+              $ref: '#/components/examples/organizationMetadata'

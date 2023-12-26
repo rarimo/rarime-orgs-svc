@@ -1,0 +1,33 @@
+get:
+  tags:
+    - Organizations
+  summary: Get a verification code for particular organization by ID
+  description: >
+    Returns a verification code for particular organization that should be added to the TXT DNS record in the “rarimo.” subdomain of provided organization domain.
+  operationId: verificationCodeByOrganizationID
+  parameters:
+    - in: path
+      name: 'id'
+      required: true
+      description: The ID of the organization
+      schema:
+        type: string
+        example: "3a798290-caf1-496a-a7e5-4db32551b13d"
+  responses:
+    200:
+      description: OK
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                $ref: '#/components/schemas/VerificationCode'
+    400:
+      $ref: '#/components/responses/invalidParameter'
+    404:
+      $ref: '#/components/responses/notFound'
+    500:
+      $ref: '#/components/responses/internalError'

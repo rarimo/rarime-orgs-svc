@@ -1,0 +1,12 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  id:
+    type: string
+    example: "9d6a5063-684e-4ab4-b49a-82cdceadf63f"
+  type:
+    type: string
+    enum:
+      - requests-fill

@@ -1,0 +1,93 @@
+get:
+  tags:
+    - Organizations
+  summary: Organizations list
+  description: |
+    Returns list of organizations registered in the service.
+  operationId: getOrgs
+  parameters:
+    - in: query
+      name: 'filter[owner]'
+      description: Filter organizations by owner
+      required: false
+      schema:
+        type: string
+        example: "778374e6-5c07-4268-9849-aeb095251105"
+    - in: query
+      name: 'filter[user_did]'
+      description: Filter organizations by user DID
+      required: false
+      schema:
+        type: string
+        example: "did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg"
+    - in: query
+      name: 'filter[status]'
+      description: Filter organizations by status. 0 - unverified, 1 - verified
+      required: false
+      schema:
+        type: string
+        enum:
+          - 0
+          - 1
+    - $ref: '#/components/parameters/pageLimitParam'
+    - $ref: '#/components/parameters/pageCursorParam'
+    - $ref: '#/components/parameters/sortingParam'
+  responses:
+    200:
+      description: Success
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Organization'
+    400:
+      $ref: '#/components/responses/invalidParameter'
+    500:
+      $ref: '#/components/responses/internalError'
+
+post:
+  tags:
+    - Organizations
+  summary: Create an organization
+  description: |
+    Returns created organization.
+  operationId: createOrg
+  requestBody:
+    required: true
+    content:
+      application/vnd.api+json:
+        schema:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: '#/components/schemas/OrganizationCreate'
+  responses:
+    200:
+      description: OK
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            required:
+              - data
+              - included
+            properties:
+              data:
+                $ref: '#/components/schemas/Organization'
+              included:
+                type: array
+                items:
+                  oneOf:
+                    - $ref: '#/components/schemas/User'
+    400:
+      $ref: '#/components/responses/invalidParameter'
+    500:
+      $ref: '#/components/responses/internalError'

@@ -1,0 +1,94 @@
+allOf:
+  - $ref: '#/components/schemas/RequestKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - org_id
+          - group_id
+          - metadata
+          - status
+          - created_at
+          - updated_at
+        properties:
+          org_id:
+            type: string
+            description: The ID of the organization that the group belongs to
+            example: "3a798290-caf1-496a-a7e5-4db32551b13d"
+          group_id:
+            type: string
+            description: The ID of the group
+            example: "6c8c1a69-177e-4754-a4e1-d4a7dbf561e8"
+          user_did:
+            type: string
+            description: The DID of the user that the request is associated with, can be empty if user hasn't accepted the invitation yet
+            example: "did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg"
+          metadata:
+            type: object
+            format: json.RawMessage
+            description: JSON object containing the metadata information of the request
+            example:
+              $ref: '#/components/examples/requestMetadata'
+          status:
+            allOf:
+              - $ref: '#/components/schemas/Enum'
+            description: >
+              The request status.
+
+              `created` – The request was created by the group admin or organization owner or superadmin and hasn't been filled yet by the user.
+              
+              `accepted` – The request was accepted by the user, user entity was created, request filled with `user_did` field. Email and `undefined` user role claims was issued for the user
+
+              `filled` – The user filled the request but it hasn't been approved or rejected yet by the group admin or organization owner or superadmin.
+
+              `approved` – The request was approved by the group admin or organization owner or superadmin.
+
+              `rejected` – The request was rejected by the group admin or organization owner or superadmin.
+
+              `submitted` – The request becomes submitted when claims were issues for the all fields in attributes and was submitted to the chain by the issuer service.
+            format: RequestStatus
+            enum:
+              - name: created
+                value: 0
+              - name: accepted
+                value: 1
+              - name: filled
+                value: 2
+              - name: approved
+                value: 3
+              - name: rejected
+                value: 4
+              - name: submitted
+                value: 5
+          created_at:
+            type: string
+            format: time.Time
+            description: The time (UTC) that the group was created in RFC3339 format
+            example: "2021-08-12T14:00:00Z"
+          updated_at:
+            type: string
+            format: time.Time
+            description: The time (UTC) that the organization was updated in RFC3339 format
+            example: "2021-08-12T13:00:00Z"
+      relationships:
+        type: object
+        properties:
+          organization:
+            type: object
+            description: The organization that the group belongs to
+            required:
+              - data
+            properties:
+              data:
+                $ref: '#/components/schemas/OrganizationKey'
+          group:
+            type: object
+            description: The group that the request is associated with
+            required:
+              - data
+            properties:
+              data:
+                $ref: '#/components/schemas/GroupKey'

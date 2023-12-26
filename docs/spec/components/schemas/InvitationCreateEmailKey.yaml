@@ -1,0 +1,12 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  id:
+    type: string
+    example: "46618778-a1c2-42dd-8b2b-898d0300bc35"
+  type:
+    type: string
+    enum:
+      - invitations-create-email

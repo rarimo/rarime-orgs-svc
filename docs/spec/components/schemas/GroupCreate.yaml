@@ -1,0 +1,25 @@
+allOf:
+  - $ref: '#/components/schemas/GroupCreateKey'
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - metadata
+          - rules
+        properties:
+          metadata:
+            type: object
+            format: json.RawMessage
+            description: JSON object containing the metadata information of the group
+            example:
+              $ref: '#/components/examples/groupMetadata'
+          rules:
+            type: object
+            format: json.RawMessage
+            description: JSON object containing the rules of the group, which will be used to generate claims for the group members
+            example:
+              $ref: '#/components/examples/groupRules'

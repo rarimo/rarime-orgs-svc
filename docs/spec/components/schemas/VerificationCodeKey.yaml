@@ -1,0 +1,12 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  id:
+    type: string
+  type:
+    type: string
+    example: "2300c287-f2b8-4e57-a381-679d7521b011"
+    enum:
+      - verification-codes

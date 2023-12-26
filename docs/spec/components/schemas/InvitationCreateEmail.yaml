@@ -1,0 +1,22 @@
+allOf:
+  - $ref: '#/components/schemas/InvitationCreateEmailKey'
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        required:
+          - email
+        type: object
+        properties:
+          email:
+            type: string
+            description: The email address of the user that the invitation email is sent to
+            example: 'example@email.com'
+          rules:
+            type: object
+            format: json.RawMessage
+            description: JSON object containing the rules of the group with the predefined values
+            example:
+              $ref: '#/components/examples/predefinedRules'
