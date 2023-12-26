@@ -98,19 +98,13 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 
 	iss := issuer.New(Log(r), &cfgIssuer)
 
-	sigProof := true
-	exp := time.Now().UTC().Add(time.Hour * 24 * 365 * 10)
-
 	credentialReq := issuer.CreateCredentialRequest{
 		CredentialSchema:  iss.SchemaURL(),
 		CredentialSubject: &credentialSubject,
 		Type:              iss.SchemaType(),
-		Expiration:        &exp,
-		SignatureProof:    &sigProof,
-		MtProof:           &sigProof,
 	}
 
-	claim, err := iss.IssueClaim(credentialReq)
+	claim, err := iss.IssueClaim(org.Did.String, credentialReq)
 	if err != nil {
 		ape.RenderErr(w, problems.InternalError())
 		return

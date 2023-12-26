@@ -13,6 +13,7 @@ import (
 
 type Issuer interface {
 	IssueClaim(
+		userDid string,
 		credentialSubject interface{},
 	) (*IssueClaimResponse, error)
 	SchemaType() string
@@ -40,6 +41,7 @@ func New(log *logan.Entry, config *config.IssuerConfig) Issuer {
 }
 
 func (is *issuer) IssueClaim(
+	userDid string,
 	credentialsSubject interface{},
 ) (*IssueClaimResponse, error) {
 	var result UUIDResponse
@@ -48,7 +50,8 @@ func (is *issuer) IssueClaim(
 		SetBasicAuth(is.authUsername, is.authPassword).
 		SetBodyJsonMarshal(credentialsSubject).
 		SetSuccessResult(result).
-		Post(issueEndpoint)
+		SetPathParam("identifier", userDid).
+		Post("/{identifier}/claims")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to send post request")
 	}

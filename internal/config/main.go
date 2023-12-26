@@ -37,17 +37,13 @@ type config struct {
 
 func New(getter kv.Getter) Config {
 	return &config{
-		getter:        getter,
-		Listenerer:    comfig.NewListenerer(getter),
-		Logger:        comfig.NewLogger(getter, comfig.LoggerOpts{}),
-		Databaser:     pgdb.NewDatabaser(getter),
-		Notificatorer: notificator.NewNotificatorer(getter),
 		getter:         getter,
 		Listenerer:     comfig.NewListenerer(getter),
 		Logger:         comfig.NewLogger(getter, comfig.LoggerOpts{}),
+		Databaser:      pgdb.NewDatabaser(getter),
+		Notificatorer:  notificator.NewNotificatorer(getter),
 		OrgsConfiger:   NewOrgsConfiger(getter),
 		IssuerConfiger: NewIssuerConfiger(getter),
-		Databaser:      pgdb.NewDatabaser(getter),
 	}
 }
 
