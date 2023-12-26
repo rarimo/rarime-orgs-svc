@@ -22,8 +22,6 @@ type OrganizationAttributes struct {
 	MembersCount string `json:"members_count"`
 	// JSON object containing the metadata information of the organization
 	Metadata json.RawMessage `json:"metadata"`
-	// The ID of the user who is owner of the organization
-	Owner string `json:"owner"`
 	// The status of the organization. `unverified` – The organization was created by the user and hasn't been verified yet. `verified` – The owner verified the organization's domain by adding code to the DNS record, verifying by the service, and creating the organization's DID issuer. As the result of the verification – the owner of the organization receives an \"owner role claim\".
 	Status OrganizationStatus `json:"status"`
 	// The time (UTC) that the organization was updated in RFC3339 format

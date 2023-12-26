@@ -91,7 +91,6 @@ func OrgList(w http.ResponseWriter, r *http.Request) {
 func populateOrg(org data.Organization) resources.Organization {
 	attrs := resources.OrganizationAttributes{
 		Domain:            org.Domain,
-		Owner:             org.Owner.String(),
 		Status:            resources.OrganizationStatus(org.Status),
 		Metadata:          json.RawMessage(org.Metadata),
 		MembersCount:      strconv.FormatInt(int64(org.MembersCount), 10),
