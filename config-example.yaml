@@ -9,8 +9,6 @@ issuer:
   base_url: ""
   auth_username: ""
   auth_password: ""
-  schema_type: ""
-  schema_url: ""
 
 orgs:
   verify_domain: false

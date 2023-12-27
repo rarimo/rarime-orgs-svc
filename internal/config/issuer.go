@@ -25,8 +25,6 @@ type IssuerConfig struct {
 	BaseUrl      string `fig:"base_url,required"`
 	AuthUsername string `fig:"auth_username,required"`
 	AuthPassword string `fig:"auth_password,required"`
-	SchemaType   string `fig:"schema_type,required"`
-	SchemaUrl    string `fig:"schema_url,required"`
 }
 
 func (i *issuer) IssuerConfig() IssuerConfig {

@@ -1019,7 +1019,7 @@ func (q OrganizationQ) OrganizationsByOwner(owner uuid.UUID, isForUpdate bool) (
 func (q OrganizationQ) OrganizationByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*data.Organization, error) {
 	// query
 	sqlstr := `SELECT ` +
-		`id, did, owner, domain, metadata, status, verification_code, issued_claims_count, members_count, created_at, updated_at ` +
+		`id, did, owner, domain, metadata, status, verification_code, issued_claims_count, members_count, created_at, updated_at, type, schema_url ` +
 		`FROM public.organizations ` +
 		`WHERE id = $1`
 	// run

@@ -16,16 +16,12 @@ type Issuer interface {
 		userDid string,
 		credentialSubject interface{},
 	) (*IssueClaimResponse, error)
-	SchemaType() string
-	SchemaURL() string
 }
 
 type issuer struct {
 	client       *req.Client
 	authUsername string
 	authPassword string
-	schemaType   string
-	schemaURL    string
 }
 
 func New(log *logan.Entry, config *config.IssuerConfig) Issuer {
@@ -33,8 +29,6 @@ func New(log *logan.Entry, config *config.IssuerConfig) Issuer {
 		client: req.C().
 			SetBaseURL(config.BaseUrl).
 			SetLogger(log),
-		schemaType:   config.SchemaType,
-		schemaURL:    config.SchemaUrl,
 		authUsername: config.AuthUsername,
 		authPassword: config.AuthPassword,
 	}
@@ -73,12 +67,4 @@ func (is *issuer) IssueClaim(
 
 	resp := result.IssueClaimResponse()
 	return &resp, nil
-}
-
-func (is *issuer) SchemaType() string {
-	return is.schemaType
-}
-
-func (is *issuer) SchemaURL() string {
-	return is.schemaURL
 }

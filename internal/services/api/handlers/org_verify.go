@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
-	"github.com/rarimo/rarime-orgs-svc/internal/services/api/issuer"
+	"github.com/rarimo/rarime-orgs-svc/internal/models/issuer"
 	"github.com/rarimo/rarime-orgs-svc/resources"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
@@ -92,16 +92,18 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	credentialSubject := issuer.IdentityProvidersCredentialSubject{
-		IdentityID: org.Did.String,
+	user, err := Storage(r).UserQ().UserByIDCtx(r.Context(), org.Owner, true)
+
+	credentialSubject := issuer.DomainVerificationCredentialSubject{
+		IdentityID: user.Did,
 	}
 
 	iss := issuer.New(Log(r), &cfgIssuer)
 
-	credentialReq := issuer.CreateCredentialRequest{
-		CredentialSchema:  iss.SchemaURL(),
+	credentialReq := issuer.CreateClaimDomainVerificationRequest{
+		CredentialSchema:  org.SchemaUrl,
 		CredentialSubject: &credentialSubject,
-		Type:              iss.SchemaType(),
+		Type:              org.Type,
 	}
 
 	claim, err := iss.IssueClaim(org.Did.String, credentialReq)
