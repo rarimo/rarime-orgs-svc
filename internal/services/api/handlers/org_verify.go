@@ -98,7 +98,7 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 		IdentityID: user.Did,
 	}
 
-	iss := issuer.New(Log(r), &cfgIssuer)
+	iss := issuer.New(Log(r), &cfgIssuer, org.Type, org.SchemaUrl)
 
 	credentialReq := issuer.CreateClaimDomainVerificationRequest{
 		CredentialSchema:  org.SchemaUrl,
@@ -106,7 +106,7 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 		Type:              org.Type,
 	}
 
-	claim, err := iss.IssueClaim(org.Did.String, credentialReq)
+	claim, err := iss.IssueClaim(user.Did, credentialReq)
 	if err != nil {
 		ape.RenderErr(w, problems.InternalError())
 		return

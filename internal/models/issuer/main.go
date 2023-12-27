@@ -22,15 +22,19 @@ type issuer struct {
 	client       *req.Client
 	authUsername string
 	authPassword string
+	schemaType   string
+	schemaURL    string
 }
 
-func New(log *logan.Entry, config *config.IssuerConfig) Issuer {
+func New(log *logan.Entry, config *config.IssuerConfig, schemaType string, schemaURL string) Issuer {
 	return &issuer{
 		client: req.C().
 			SetBaseURL(config.BaseUrl).
 			SetLogger(log),
 		authUsername: config.AuthUsername,
 		authPassword: config.AuthPassword,
+		schemaType:   schemaType,
+		schemaURL:    schemaURL,
 	}
 }
 
