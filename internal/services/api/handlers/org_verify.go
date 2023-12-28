@@ -60,33 +60,9 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if cfgRarime.VerifyDomain {
-		txtrecords, err := net.LookupTXT(org.Domain)
-		if err != nil {
+		if !verifyCodeInTxtRecords(org.Domain, org.VerificationCode.String) {
 			ape.RenderErr(w, problems.BadRequest(validation.Errors{
-				"domain": errors.New("domain not verified"),
-			})...)
-			return
-		}
-
-		if len(txtrecords) == 0 {
-			ape.RenderErr(w, problems.BadRequest(validation.Errors{
-				"domain": errors.New("domain not verified"),
-			})...)
-			return
-		}
-
-		var found bool
-
-		for _, txtrecord := range txtrecords {
-			if txtrecord == org.VerificationCode.String {
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			ape.RenderErr(w, problems.BadRequest(validation.Errors{
-				"domain": errors.New("domain not verified"),
+				"status": errors.New("domain verification failed"),
 			})...)
 			return
 		}
@@ -94,20 +70,21 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 
 	user, err := Storage(r).UserQ().UserByIDCtx(r.Context(), org.Owner, true)
 
-	credentialSubject := issuer.DomainVerificationCredentialSubject{
-		IdentityID: user.Did,
-	}
+	credentialSubject := issuer.NewEmptyDomainVerificationCredentialSubject()
+	credentialSubject.IdentityID = user.Did
+	credentialSubject.Domain = org.Domain
 
 	iss := issuer.New(Log(r), &cfgIssuer, org.Type, org.SchemaUrl)
 
 	credentialReq := issuer.CreateClaimDomainVerificationRequest{
 		CredentialSchema:  org.SchemaUrl,
-		CredentialSubject: &credentialSubject,
+		CredentialSubject: credentialSubject,
 		Type:              org.Type,
 	}
 
 	claim, err := iss.IssueClaim(user.Did, credentialReq)
 	if err != nil {
+		Log(r).Error("failed to issue claim:", err.Error())
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
@@ -147,4 +124,23 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 		Data:     populateOrg(*org),
 		Included: inc,
 	})
+}
+
+func verifyCodeInTxtRecords(domain string, verifyCode string) bool {
+	txtrecords, err := net.LookupTXT(domain)
+	if err != nil {
+		return false
+	}
+
+	if len(txtrecords) == 0 {
+		return false
+	}
+
+	for _, txtrecord := range txtrecords {
+		if txtrecord == verifyCode {
+			return true
+		}
+	}
+
+	return false
 }

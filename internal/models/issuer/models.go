@@ -3,10 +3,15 @@ package issuer
 import (
 	"github.com/pkg/errors"
 	"github.com/rarimo/issuer/resources"
+	"time"
 )
 
 var (
 	ErrUnexpectedStatusCode = errors.New("unexpected status code")
+)
+
+const (
+	EmptyStringField = "none"
 )
 
 type ClaimType string
@@ -17,6 +22,7 @@ func (c ClaimType) String() string {
 
 type DomainVerificationCredentialSubject struct {
 	IdentityID string `json:"id"`
+	Domain     string `json:"domain"`
 }
 
 type IssueClaimResponse struct {
@@ -35,9 +41,11 @@ type IssueClaimResponseData struct {
 type CreateClaimDomainVerificationRequest struct {
 	CredentialSchema  string                               `json:"credentialSchema"`
 	CredentialSubject *DomainVerificationCredentialSubject `json:"credentialSubject"`
+	Expiration        *time.Time                           `json:"expiration,omitempty"`
 	Type              string                               `json:"type"`
 }
 
+// UUIDResponse is updated to include the "IssueClaimResponse" method.
 type UUIDResponse struct {
 	Id string `json:"id"`
 }
@@ -50,5 +58,12 @@ func (r UUIDResponse) IssueClaimResponse() IssueClaimResponse {
 				Type: resources.CLAIM_ID,
 			},
 		},
+	}
+}
+
+func NewEmptyDomainVerificationCredentialSubject() *DomainVerificationCredentialSubject {
+	return &DomainVerificationCredentialSubject{
+		IdentityID: EmptyStringField,
+		Domain:     EmptyStringField,
 	}
 }
