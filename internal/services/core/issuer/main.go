@@ -11,6 +11,10 @@ import (
 	"gitlab.com/distributed_lab/logan/v3"
 )
 
+const (
+	DomainOwnershipActionType = "DomainOwnership"
+)
+
 type Issuer interface {
 	IssueClaim(
 		userDid string,

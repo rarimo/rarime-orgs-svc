@@ -5,7 +5,7 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
 	"github.com/rarimo/rarime-orgs-svc/internal/services/core/issuer"
-	"github.com/rarimo/rarime-orgs-svc/internal/services/core/models"
+	"github.com/rarimo/rarime-orgs-svc/internal/services/core/issuer/models"
 	"github.com/rarimo/rarime-orgs-svc/resources"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
@@ -71,18 +71,25 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 
 	user, err := Storage(r).UserQ().UserByIDCtx(r.Context(), org.Owner, true)
 
-	credentialSubject := models.NewEmptyDomainVerificationCredentialSubject()
+	credentialSubject := models.NewEmptyDomainOwnershipCredentialSubject()
 	credentialSubject.IdentityID = user.Did
 	credentialSubject.Domain = org.Domain
 
-	schema, err := issuer.GetSchemaUrl(r, "DomainVerification")
+	schema, err := Storage(r).ClaimSchemaQ().SchemaByActionTypeCtx(r.Context(), issuer.DomainOwnershipActionType)
+
 	if err != nil {
+		panic(errors.Wrap(err, "failed to get schema by action type", logan.F{
+			"action_type": issuer.DomainOwnershipActionType,
+		}))
+	}
+	if schema == nil {
+		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
 	iss := issuer.New(Log(r), &cfgIssuer, schema.SchemaType, schema.SchemaUrl)
 
-	credentialReq := models.CreateClaimDomainVerificationRequest{
+	credentialReq := models.DomainOwnershipCredentialRequest{
 		CredentialSchema:  schema.SchemaUrl,
 		CredentialSubject: credentialSubject,
 		Type:              schema.SchemaType,
