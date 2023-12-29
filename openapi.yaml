@@ -347,7 +347,7 @@ paths:
                   - included
                 properties:
                   data:
-                    $ref: '#/components/schemas/Organization'
+                    $ref: '#/components/schemas/Group'
                   included:
                     type: array
                     items:
