@@ -18,6 +18,7 @@ const (
 	orgsConfigKey
 	issuerConfigKey
 	notificatorCtxKey
+	claimSchemaQ
 )
 
 func CtxLog(entry *logan.Entry) func(context.Context) context.Context {
@@ -60,6 +61,10 @@ func CtxNotificator(notificator notificator.Notificator) func(context.Context) c
 
 func Notificator(r *http.Request) notificator.Notificator {
 	return r.Context().Value(notificatorCtxKey).(notificator.Notificator)
+}
+
+func ClaimSchemaQ(r *http.Request) data.ClaimSchemaQ {
+	return r.Context().Value(claimSchemaQ).(data.Storage).ClaimSchemaQ().New()
 }
 
 func OrganizationQ(r *http.Request) data.OrganizationQ {

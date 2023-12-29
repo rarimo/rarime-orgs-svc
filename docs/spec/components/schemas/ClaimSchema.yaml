@@ -1,0 +1,19 @@
+allOf:
+  - $ref: '#/components/schemas/ClaimSchemaKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - action_type
+          - schema_type
+          - schema_url
+        properties:
+          action_type:
+            type: string
+          schema_type:
+            type: string
+          schema_url:
+            type: string

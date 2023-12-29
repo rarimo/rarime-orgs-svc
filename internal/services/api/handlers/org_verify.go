@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
-	"github.com/rarimo/rarime-orgs-svc/internal/models/issuer"
+	"github.com/rarimo/rarime-orgs-svc/internal/services/core/issuer"
+	"github.com/rarimo/rarime-orgs-svc/internal/services/core/models"
 	"github.com/rarimo/rarime-orgs-svc/resources"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
@@ -70,16 +71,21 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 
 	user, err := Storage(r).UserQ().UserByIDCtx(r.Context(), org.Owner, true)
 
-	credentialSubject := issuer.NewEmptyDomainVerificationCredentialSubject()
+	credentialSubject := models.NewEmptyDomainVerificationCredentialSubject()
 	credentialSubject.IdentityID = user.Did
 	credentialSubject.Domain = org.Domain
 
-	iss := issuer.New(Log(r), &cfgIssuer, org.Type, org.SchemaUrl)
+	schema, err := issuer.GetSchemaUrl(r, "DomainVerification")
+	if err != nil {
+		return
+	}
 
-	credentialReq := issuer.CreateClaimDomainVerificationRequest{
-		CredentialSchema:  org.SchemaUrl,
+	iss := issuer.New(Log(r), &cfgIssuer, schema.SchemaType, schema.SchemaUrl)
+
+	credentialReq := models.CreateClaimDomainVerificationRequest{
+		CredentialSchema:  schema.SchemaUrl,
 		CredentialSubject: credentialSubject,
-		Type:              org.Type,
+		Type:              schema.SchemaType,
 	}
 
 	claim, err := iss.IssueClaim(user.Did, credentialReq)

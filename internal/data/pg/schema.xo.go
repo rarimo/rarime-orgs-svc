@@ -19,6 +19,38 @@ type Storage struct {
 	db *pgdb.DB
 }
 
+// ClaimQ represents helper struct to access row of 'claims'.
+type ClaimQ struct {
+	db *pgdb.DB
+}
+
+func (c ClaimQ) New() data.ClaimSchemaQ {
+	return NewClaimQ(c.db)
+}
+
+func (c ClaimQ) SchemaByActionTypeCtx(ctx context.Context, actionType string) (*data.ClaimSchema, error) {
+	// query
+	sqlstr := `SELECT * FROM claims_schemas WHERE action_type = $1`
+	// run
+	var result data.ClaimSchema
+	err := c.db.GetRawContext(ctx, &result, sqlstr, actionType)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	return &result, errors.Wrap(err, "failed to execute select query")
+}
+
+// NewClaimQ  - creates new instance
+func NewClaimQ(db *pgdb.DB) ClaimQ {
+	return ClaimQ{
+		db,
+	}
+}
+
+func (s *Storage) ClaimSchemaQ() data.ClaimSchemaQ {
+	return NewClaimQ(s.DB())
+}
+
 // New - returns new instance of storage
 func New(db *pgdb.DB) *Storage {
 	return &Storage{
@@ -1019,7 +1051,7 @@ func (q OrganizationQ) OrganizationsByOwner(owner uuid.UUID, isForUpdate bool) (
 func (q OrganizationQ) OrganizationByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*data.Organization, error) {
 	// query
 	sqlstr := `SELECT ` +
-		`id, did, owner, domain, metadata, status, verification_code, issued_claims_count, members_count, created_at, updated_at, type, schema_url ` +
+		`id, did, owner, domain, metadata, status, verification_code, issued_claims_count, members_count, created_at, updated_at ` +
 		`FROM public.organizations ` +
 		`WHERE id = $1`
 	// run

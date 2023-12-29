@@ -1,7 +1,13 @@
 -- +migrate Up
-ALTER TABLE organizations ADD COLUMN type VARCHAR(255);
-ALTER TABLE organizations ADD COLUMN schema_url VARCHAR(255);
+create table claims_schemas
+(
+    id uuid primary key default gen_random_uuid(),
+    action_type text not null,
+    schema_type text not null,
+    schema_url text not null,
+    created_at timestamp without time zone not null default now(),
+    updated_at timestamp without time zone not null default now()
+);
 
 -- +migrate Down
-ALTER TABLE organizations DROP COLUMN type;
-ALTER TABLE organizations DROP COLUMN schema_url;
+drop table claims_schemas;

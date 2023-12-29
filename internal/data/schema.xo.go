@@ -117,8 +117,6 @@ type Organization struct {
 	MembersCount      int            `db:"members_count" json:"members_count" structs:"members_count"`                   // members_count
 	CreatedAt         time.Time      `db:"created_at" json:"created_at" structs:"created_at"`                            // created_at
 	UpdatedAt         time.Time      `db:"updated_at" json:"updated_at" structs:"updated_at"`                            // updated_at
-	Type 	 		  string 		 `db:"type" json:"type" structs:"type"` 											 // type
-	SchemaUrl 		  string		 `db:"schema_url" json:"schema_url" structs:"schema_url"`							 // schema_url
 }
 
 // Request represents a row from 'public.requests'.
@@ -143,4 +141,14 @@ type User struct {
 	CreatedAt time.Time `db:"created_at" json:"created_at" structs:"created_at"` // created_at
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at" structs:"updated_at"` // updated_at
 
+}
+
+// ClaimSchema represents a row from 'public.claims_schemas'.
+type ClaimSchema struct {
+	ID        uuid.UUID `db:"id" json:"id" structs:"-"`                          // id
+	ActionType string    `db:"action_type" json:"action_type" structs:"action_type"` // action_type
+	SchemaType string    `db:"schema_type" json:"schema_type" structs:"schema_type"` // schema_type
+	SchemaUrl    string  `db:"schema_url" json:"schema_url" structs:"schema_url"`             // schema
+	CreatedAt time.Time `db:"created_at" json:"created_at" structs:"created_at"` // created_at
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at" structs:"updated_at"` // updated_at
 }
