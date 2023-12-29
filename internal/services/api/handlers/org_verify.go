@@ -61,7 +61,7 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if cfgRarime.VerifyDomain {
-		if !verifyCodeInTxtRecords(org.Domain, org.VerificationCode.String) {
+		if !verifyCodeInTxtRecords("rarimo."+org.Domain, org.VerificationCode.String) {
 			ape.RenderErr(w, problems.BadRequest(validation.Errors{
 				"status": errors.New("domain verification failed"),
 			})...)
