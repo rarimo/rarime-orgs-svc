@@ -9,6 +9,10 @@ import (
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
+func (q OrganizationQ) New() data.OrganizationQ {
+	return OrganizationQ{q.db}
+}
+
 func (q OrganizationQ) SelectCtx(ctx context.Context, selector data.OrgsSelector) ([]data.Organization, error) {
 	stmt := squirrel.Select("*").From("public.organizations")
 

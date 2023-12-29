@@ -13,6 +13,7 @@ import (
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -42,6 +43,8 @@ func OrgCreate(w http.ResponseWriter, r *http.Request) {
 		ape.RenderErr(w, problems.BadRequest(err)...)
 		return
 	}
+
+	req.Data.Attributes.Domain = removeScheme(req.Data.Attributes.Domain)
 
 	orgID := uuid.New()
 
@@ -123,4 +126,14 @@ func populateUser(user data.User) resources.User {
 	}
 
 	return res
+}
+
+// removeScheme removes the scheme from a domain name.
+func removeScheme(domain string) string {
+	if strings.HasPrefix(domain, "http://") {
+		return strings.TrimPrefix(domain, "http://")
+	} else if strings.HasPrefix(domain, "https://") {
+		return strings.TrimPrefix(domain, "https://")
+	}
+	return domain
 }

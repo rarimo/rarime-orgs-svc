@@ -22,7 +22,7 @@ allOf:
           domain:
             type: string
             description: The domain of the organization
-            example: "https://organization-domain.com"
+            example: "organization-domain.com"
           metadata:
             type: object
             format: json.RawMessage

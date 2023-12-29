@@ -21,6 +21,8 @@ func Run(ctx context.Context, cfg config.Config) {
 		ape.CtxMiddleware(
 			handlers.CtxLog(cfg.Log()),
 			handlers.CtxStorage(cfg.Storage()),
+			handlers.CtxOrgsConfig(cfg.Orgs()),
+			handlers.CtxIssuerConfig(cfg.Issuer()),
 			handlers.CtxNotificator(cfg.Notificator()),
 		),
 	)

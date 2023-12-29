@@ -1,0 +1,24 @@
+type: object
+required:
+  - body
+  - id
+  - typ
+  - type
+  - threadID
+  - from
+  - to
+properties:
+  id:
+    type: string
+  typ:
+    type: string
+  type:
+    type: string
+  threadID:
+    type: string
+  body:
+    type: interface
+  from:
+    type: string
+  to:
+    type: string

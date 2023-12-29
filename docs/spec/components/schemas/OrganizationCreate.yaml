@@ -18,7 +18,7 @@ allOf:
             example: "did:iden3:readonly:tM1QCJ7ytcbvLB7EFQhGsJPumc11DEE18gEvAzxE7"
           domain:
             type: string
-            example: "https://organization-domain.com"
+            example: "organization-domain.com"
             description: "The domain of the organization"
           metadata:
             type: object
