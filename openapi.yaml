@@ -898,6 +898,31 @@ paths:
           $ref: '#/components/responses/internalError'
 components:
   schemas:
+    ClaimOffer:
+      type: object
+      required:
+        - body
+        - id
+        - typ
+        - type
+        - threadID
+        - from
+        - to
+      properties:
+        id:
+          type: string
+        typ:
+          type: string
+        type:
+          type: string
+        threadID:
+          type: string
+        body:
+          type: interface
+        from:
+          type: string
+        to:
+          type: string
     Enum:
       type: object
       required:
@@ -1272,7 +1297,7 @@ components:
                 domain:
                   type: string
                   description: The domain of the organization
-                  example: 'https://organization-domain.com'
+                  example: organization-domain.com
                 metadata:
                   type: object
                   format: json.RawMessage
@@ -1346,7 +1371,7 @@ components:
                   example: 'did:iden3:readonly:tM1QCJ7ytcbvLB7EFQhGsJPumc11DEE18gEvAzxE7'
                 domain:
                   type: string
-                  example: 'https://organization-domain.com'
+                  example: organization-domain.com
                   description: The domain of the organization
                 metadata:
                   type: object

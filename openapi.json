@@ -1353,6 +1353,41 @@
   },
   "components": {
     "schemas": {
+      "ClaimOffer": {
+        "type": "object",
+        "required": [
+          "body",
+          "id",
+          "typ",
+          "type",
+          "threadID",
+          "from",
+          "to"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "typ": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "threadID": {
+            "type": "string"
+          },
+          "body": {
+            "type": "interface"
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          }
+        }
+      },
       "Enum": {
         "type": "object",
         "required": [
@@ -1898,7 +1933,7 @@
                   "domain": {
                     "type": "string",
                     "description": "The domain of the organization",
-                    "example": "https://organization-domain.com"
+                    "example": "organization-domain.com"
                   },
                   "metadata": {
                     "type": "object",
@@ -2004,7 +2039,7 @@
                   },
                   "domain": {
                     "type": "string",
-                    "example": "https://organization-domain.com",
+                    "example": "organization-domain.com",
                     "description": "The domain of the organization"
                   },
                   "metadata": {
