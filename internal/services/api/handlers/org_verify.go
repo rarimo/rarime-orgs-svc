@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"encoding/json"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
-	"github.com/rarimo/rarime-orgs-svc/internal/services/core/issuer"
-	"github.com/rarimo/rarime-orgs-svc/internal/services/core/issuer/models"
+	"github.com/rarimo/rarime-orgs-svc/internal/services/core/issuer/schemas"
 	"github.com/rarimo/rarime-orgs-svc/resources"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
@@ -34,9 +32,6 @@ func newVerifyRequest(r *http.Request) (*orgVerifyRequest, error) {
 }
 
 func OrgVerify(w http.ResponseWriter, r *http.Request) {
-	cfgIssuer := IssuerConfig(r)
-	cfgRarime := OrgsConfig(r)
-
 	req, err := newVerifyRequest(r)
 	if err != nil {
 		ape.RenderErr(w, problems.BadRequest(err)...)
@@ -60,7 +55,7 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if cfgRarime.VerifyDomain {
+	if OrgsConfig(r).VerifyDomain {
 		if !verifyCodeInTxtRecords("rarimo."+org.Domain, org.VerificationCode.String) {
 			ape.RenderErr(w, problems.BadRequest(validation.Errors{
 				"status": errors.New("domain verification failed"),
@@ -70,39 +65,40 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := Storage(r).UserQ().UserByIDCtx(r.Context(), org.Owner, true)
-
-	credentialSubject := models.NewEmptyDomainOwnershipCredentialSubject()
-	credentialSubject.IdentityID = user.Did
-	credentialSubject.Domain = org.Domain
-
-	schema, err := Storage(r).ClaimSchemaQ().SchemaByActionTypeCtx(r.Context(), issuer.DomainOwnershipActionType)
-
 	if err != nil {
-		panic(errors.Wrap(err, "failed to get schema by action type", logan.F{
-			"action_type": issuer.DomainOwnershipActionType,
-		}))
+		Log(r).WithError(err).Error("Failed to get user by ID")
+		ape.RenderErr(w, problems.InternalError())
+		return
 	}
-	if schema == nil {
+	if user == nil {
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
-	iss := issuer.New(Log(r), &cfgIssuer, schema.SchemaType, schema.SchemaUrl)
-
-	credentialReq := models.DomainOwnershipCredentialRequest{
-		CredentialSchema:  schema.SchemaUrl,
-		CredentialSubject: credentialSubject,
-		Type:              schema.SchemaType,
-	}
-
-	claim, err := iss.IssueClaim(user.Did, credentialReq)
+	schema, err := Storage(r).ClaimSchemaQ().SchemaByActionTypeCtx(r.Context(), schemas.ActionDomainOwnership)
 	if err != nil {
-		Log(r).Error("failed to issue claim:", err.Error())
+		Log(r).WithError(err).Error("Failed to get schema by action type: %s", schemas.ActionDomainOwnership)
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+	if schema == nil {
+		Log(r).Errorf("Schema not found by action type: %s", schemas.ActionDomainOwnership)
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	if claim == nil {
+	credentialReq := schemas.CreateCredentialRequest{
+		CredentialSchema: schema.SchemaUrl,
+		CredentialSubject: schemas.DomainOwnership{
+			IdentityID: user.Did,
+			Domain:     org.Domain,
+		},
+		Type: schema.SchemaType,
+	}
+
+	claim, err := Issuer(r).IssueClaim(user.Did, credentialReq)
+	if err != nil {
+		Log(r).WithError(err).Error("Failed to issue claim")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
@@ -116,16 +112,6 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 			"org_id": req.ID,
 		}))
 	}
-
-	jsonClaim, err := json.Marshal(claim)
-	if err != nil {
-		panic(errors.Wrap(err, "failed to marshal claim", logan.F{
-			"org_id": req.ID,
-		}))
-	}
-
-	var rawMsg json.RawMessage
-	err = json.Unmarshal(jsonClaim, &rawMsg)
 
 	inc := resources.Included{}
 	inc.Add(resources.ClaimOffer{

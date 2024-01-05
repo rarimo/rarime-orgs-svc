@@ -4,17 +4,20 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"time"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	rules "github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/google/uuid"
 	"github.com/rarimo/rarime-orgs-svc/internal/data"
+	"github.com/rarimo/rarime-orgs-svc/internal/services/core/issuer"
+	"github.com/rarimo/rarime-orgs-svc/internal/services/core/issuer/schemas"
 	"github.com/rarimo/rarime-orgs-svc/resources"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
-	"net/http"
-	"time"
 )
 
 func newInvitationEmailAcceptRequest(r *http.Request) (*uuid.UUID, *uuid.UUID, *resources.InvitationAcceptEmailRequest, error) {
@@ -72,7 +75,7 @@ func InvitationEmailAccept(w http.ResponseWriter, r *http.Request) {
 		}))
 	}
 	if group == nil {
-		ape.RenderErr(w, NotFound(fmt.Sprintf("Group with ID: %s not exist", orgID), "group_id"))
+		ape.RenderErr(w, NotFound(fmt.Sprintf("Group with ID: %s not exist", *groupID), "group_id"))
 		return
 	}
 
@@ -105,13 +108,21 @@ func InvitationEmailAccept(w http.ResponseWriter, r *http.Request) {
 		ape.RenderErr(w, problems.Forbidden())
 		return
 	}
-	// TODO: add claims issuing logic here
+
 	user := data.User{
 		ID:        uuid.New(),
 		Did:       req.Data.Attributes.UserDid,
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 	}
+
+	emailClaim, roleClaim, err := issueInvitationAcceptClaims(r, user, inv.Email)
+	if err != nil {
+		Log(r).WithError(err).Error("Failed to issue claims on invitation accept")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
 	request.UserDid = sql.NullString{
 		String: user.Did,
 		Valid:  true,
@@ -119,34 +130,88 @@ func InvitationEmailAccept(w http.ResponseWriter, r *http.Request) {
 	request.Status = resources.RequestStatus_Accepted.Int16()
 	request.UpdatedAt = time.Now().UTC()
 
-	err = Storage(r).Transaction(func() error {
-		err = Storage(r).UserQ().InsertCtx(r.Context(), &user)
-		if err != nil {
-			return errors.Wrap(err, "failed to insert new user", logan.F{
-				"did": req.Data.Attributes.UserDid,
-			})
-		}
-		err = Storage(r).RequestQ().UpdateCtx(r.Context(), request)
-		if err != nil {
-			return errors.Wrap(err, "failed to update request", logan.F{
-				"req_id": request.ID,
-			})
-		}
-
-		return nil
-	})
-	if err != nil {
-		Log(r).WithError(err).Error("failed to create new user and update request")
+	if err = updateOnInvitationAccept(r, user, *request); err != nil {
+		Log(r).WithError(err).Error("Failed to update data on invitation accept")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	resp := resources.InvitationEmailResponse{
-		Data:     populateInvitationEmail(*inv),
-		Included: resources.Included{},
-	}
+	resp := resources.InvitationEmailResponse{Data: populateInvitationEmail(*inv)}
 	respRequest := populateRequest(*request)
 	resp.Included.Add(&respRequest)
+	resp.Included.Add(&resources.ClaimOffer{
+		Id:   emailClaim.Data.ID,
+		Type: string(emailClaim.Data.Type),
+	})
+	resp.Included.Add(&resources.ClaimOffer{
+		Id:   roleClaim.Data.ID,
+		Type: string(roleClaim.Data.Type),
+	})
 
 	ape.Render(w, resp)
+}
+
+func issueInvitationAcceptClaims(
+	r *http.Request,
+	user data.User,
+	userEmail string,
+) (email, role *issuer.IssueClaimResponse, err error) {
+
+	schema, err := getSchemaByActionType(r, schemas.ActionEmployeeNickname)
+	if err != nil {
+		return nil, nil, fmt.Errorf("get schema by action type: %w", err)
+	}
+
+	var (
+		req = schemas.CreateCredentialRequest{
+			CredentialSchema: schema.SchemaUrl,
+			CredentialSubject: schemas.EmployeeNickname{
+				EmployeeSocialMedia: schemas.SocialMediaEmail,
+				EmployeeNickname:    userEmail,
+			},
+			Type: schema.SchemaType,
+		}
+		errCtx = fmt.Sprintf("[did=%s; type=%s; schema_url=%s; subject=%v]",
+			user.Did, req.Type, req.CredentialSchema, req.CredentialSubject)
+	)
+
+	email, err = Issuer(r).IssueClaim(user.Did, req)
+	if err != nil {
+		return nil, nil, fmt.Errorf("issue claim %s: %w", errCtx, err)
+	}
+
+	req.CredentialSubject = schemas.UserRole{Role: schemas.RoleUndefined}
+	role, err = Issuer(r).IssueClaim(user.Did, req)
+	if err != nil {
+		return nil, nil, fmt.Errorf("issue claim %s: %w", errCtx, err)
+	}
+
+	return
+}
+
+func updateOnInvitationAccept(r *http.Request, user data.User, request data.Request) error {
+	return Storage(r).Transaction(func() error {
+		err := Storage(r).UserQ().InsertCtx(r.Context(), &user)
+		if err != nil {
+			return fmt.Errorf("insert user: %w", err)
+		}
+
+		err = Storage(r).RequestQ().UpdateCtx(r.Context(), &request)
+		if err != nil {
+			return fmt.Errorf("update request: %w", err)
+		}
+
+		return nil
+	})
+}
+
+func getSchemaByActionType(r *http.Request, actionType string) (*data.ClaimSchema, error) {
+	schema, err := Storage(r).ClaimSchemaQ().SchemaByActionTypeCtx(r.Context(), actionType)
+	if err != nil {
+		return nil, fmt.Errorf("get schema by action_type=%s: %w", actionType, err)
+	}
+	if schema == nil {
+		return nil, fmt.Errorf("schema not found by action_type=%s", actionType)
+	}
+	return schema, nil
 }

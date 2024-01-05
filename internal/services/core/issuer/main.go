@@ -2,55 +2,38 @@ package issuer
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 
 	"github.com/rarimo/rarime-orgs-svc/internal/config"
+	"github.com/rarimo/rarime-orgs-svc/internal/services/core/issuer/schemas"
 
 	"github.com/imroc/req/v3"
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/logan/v3"
 )
 
-const (
-	DomainOwnershipActionType = "DomainOwnership"
-)
-
-type Issuer interface {
-	IssueClaim(
-		userDid string,
-		credentialSubject interface{},
-	) (*IssueClaimResponse, error)
-}
-
-type issuer struct {
+type Issuer struct {
 	client       *req.Client
 	authUsername string
 	authPassword string
-	schemaType   string
-	schemaURL    string
 }
 
-func New(log *logan.Entry, config *config.IssuerConfig, schemaType string, schemaURL string) Issuer {
-	return &issuer{
+func New(log *logan.Entry, config config.IssuerConfig) *Issuer {
+	return &Issuer{
 		client: req.C().
 			SetBaseURL(config.BaseUrl).
 			SetLogger(log),
 		authUsername: config.AuthUsername,
 		authPassword: config.AuthPassword,
-		schemaType:   schemaType,
-		schemaURL:    schemaURL,
 	}
 }
 
-func (is *issuer) IssueClaim(
-	userDid string,
-	credentialsSubject interface{},
-) (*IssueClaimResponse, error) {
+func (is *Issuer) IssueClaim(userDid string, req schemas.CreateCredentialRequest) (*IssueClaimResponse, error) {
 	var result UUIDResponse
 
 	response, err := is.client.R().
 		SetBasicAuth(is.authUsername, is.authPassword).
-		SetBodyJsonMarshal(credentialsSubject).
+		SetBodyJsonMarshal(req).
 		SetSuccessResult(result).
 		SetPathParam("identifier", userDid).
 		Post("/{identifier}/claims")
@@ -63,7 +46,7 @@ func (is *issuer) IssueClaim(
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read response body")
 	}

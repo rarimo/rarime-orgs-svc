@@ -97,7 +97,7 @@ We welcome contributions from the community! To contribute to this project, foll
 Please ensure your pull request adheres to the following guidelines:
 - Add a clear pull request title;
 - Add a comprehensive pull request description that includes the motivation behind the changes, steps needed to test them, etc;
-- Update the [CHANGELOG.md](CHANGELOG) accordingly;
+- Update the [CHANGELOG.md](CHANGELOG.md) accordingly;
 - Keep the codebase clean and well-documented;
 - Make sure your code is properly tested;
 - Reference any related issues in your pull request;
@@ -106,7 +106,7 @@ The maintainers will review your pull request and may request changes or provide
 
 ## Changelog
 
-For the changelog, see [CHANGELOG.md](CHANGELOG).
+For the changelog, see [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 

@@ -2,8 +2,10 @@ package api
 
 import (
 	"context"
-	"gitlab.com/distributed_lab/logan/v3"
 	"time"
+
+	"github.com/rarimo/rarime-orgs-svc/internal/services/core/issuer"
+	"gitlab.com/distributed_lab/logan/v3"
 
 	"github.com/go-chi/chi"
 	"github.com/rarimo/rarime-orgs-svc/internal/config"
@@ -22,7 +24,7 @@ func Run(ctx context.Context, cfg config.Config) {
 			handlers.CtxLog(cfg.Log()),
 			handlers.CtxStorage(cfg.Storage()),
 			handlers.CtxOrgsConfig(cfg.Orgs()),
-			handlers.CtxIssuerConfig(cfg.Issuer()),
+			handlers.CtxIssuer(issuer.New(cfg.Log().WithField("service", "issuer"), cfg.Issuer())),
 			handlers.CtxNotificator(cfg.Notificator()),
 		),
 	)
