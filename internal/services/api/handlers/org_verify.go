@@ -128,10 +128,14 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(jsonClaim, &rawMsg)
 
 	inc := resources.Included{}
-	inc.Add(resources.ClaimOffer{
-		Id:   claim.Data.ID,
-		Type: string(claim.Data.Type),
-	})
+
+	claimOffer := resources.ClaimOffer{
+		Key: resources.Key{
+			ID:   credentialSubject.IdentityID,
+			Type: resources.ResourceType(schema.SchemaType),
+		},
+	}
+	inc.Add(claimOffer.GetKeyP())
 
 	ape.Render(w, resources.OrganizationResponse{
 		Data:     populateOrg(*org),

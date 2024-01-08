@@ -145,7 +145,12 @@ func InvitationEmailAccept(w http.ResponseWriter, r *http.Request) {
 		Data:     populateInvitationEmail(*inv),
 		Included: resources.Included{},
 	}
-	respRequest := populateRequest(*request)
+	respRequest, err := populateRequest(*request)
+	if err != nil {
+		Log(r).WithError(err).Error("failed to populate request")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
 	resp.Included.Add(&respRequest)
 
 	ape.Render(w, resp)

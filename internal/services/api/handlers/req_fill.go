@@ -74,8 +74,15 @@ func RequestFill(w http.ResponseWriter, r *http.Request) {
 		}))
 	}
 
+	respRequest, err := populateRequest(*request)
+	if err != nil {
+		Log(r).WithError(err).Error("failed to populate request")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
 	ape.Render(w, resources.RequestResponse{
-		Data:     populateRequest(*request),
+		Data:     respRequest,
 		Included: resources.Included{},
 	})
 }

@@ -8,6 +8,7 @@ type ResourceType string
 
 // List of ResourceType
 const (
+	CLAIM_OFFERS             ResourceType = "claim_offers"
 	GROUPS_CREATE            ResourceType = "groups-create"
 	GROUPS                   ResourceType = "groups"
 	GROUP_USERS              ResourceType = "group-users"

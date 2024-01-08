@@ -138,8 +138,15 @@ func RequestVerify(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: add logic for change request status to submitted if it was approved
 
+	populatedRequest, err := populateRequest(*request)
+	if err != nil {
+		Log(r).WithError(err).Error("failed to populate request")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
 	ape.Render(w, resources.RequestResponse{
-		Data:     populateRequest(*request),
+		Data:     populatedRequest,
 		Included: resources.Included{},
 	})
 }
