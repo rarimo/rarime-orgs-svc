@@ -2,6 +2,7 @@ package pg
 
 import (
 	"database/sql"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/rarimo/rarime-orgs-svc/internal/data"
 	"gitlab.com/distributed_lab/logan/v3/errors"

@@ -53,8 +53,15 @@ func RequestByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	respRequest, err := populateRequest(*request)
+	if err != nil {
+		Log(r).WithError(err).Error("failed to populate request")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
 	resp := resources.RequestResponse{
-		Data:     populateRequest(*request),
+		Data:     respRequest,
 		Included: resources.Included{},
 	}
 

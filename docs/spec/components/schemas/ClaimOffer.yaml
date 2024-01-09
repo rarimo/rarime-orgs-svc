@@ -1,24 +1,32 @@
-type: object
-required:
-  - body
-  - id
-  - typ
-  - type
-  - threadID
-  - from
-  - to
-properties:
-  id:
-    type: string
-  typ:
-    type: string
-  type:
-    type: string
-  threadID:
-    type: string
-  body:
-    type: interface
-  from:
-    type: string
-  to:
-    type: string
+allOf:
+  - $ref: '#/components/schemas/GroupKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - body
+          - id
+          - typ
+          - type
+          - threadID
+          - from
+          - to
+        properties:
+          id:
+            type: string
+          typ:
+            type: string
+          type:
+            type: string
+          threadID:
+            type: string
+          body:
+            type: interface
+            format: interface{}
+          from:
+            type: string
+          to:
+            type: string

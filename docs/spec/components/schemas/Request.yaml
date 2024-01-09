@@ -10,6 +10,7 @@ allOf:
           - org_id
           - group_id
           - metadata
+          - credential_requests
           - status
           - created_at
           - updated_at
@@ -26,12 +27,11 @@ allOf:
             type: string
             description: The DID of the user that the request is associated with, can be empty if user hasn't accepted the invitation yet
             example: "did:iden3:tP2Yx51N98d7E5M84SGnyzmaGWqRz4oUcHQSGAgyg"
-          metadata:
-            type: object
-            format: json.RawMessage
-            description: JSON object containing the metadata information of the request
-            example:
-              $ref: '#/components/examples/requestMetadata'
+          credential_requests:
+            type: array
+            description: Credential requests to an issuer
+            items:
+              $ref: '#/components/schemas/CredentialRequest'
           status:
             allOf:
               - $ref: '#/components/schemas/Enum'

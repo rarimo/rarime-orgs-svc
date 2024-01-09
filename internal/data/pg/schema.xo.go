@@ -6,49 +6,17 @@ package pg
 import (
 	"context"
 	"database/sql"
+	"github.com/rarimo/rarime-orgs-svc/internal/data"
 
 	"gitlab.com/distributed_lab/kit/pgdb"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 
 	"github.com/google/uuid"
-	"github.com/rarimo/rarime-orgs-svc/internal/data"
 )
 
 // Storage is the helper struct for database operations
 type Storage struct {
 	db *pgdb.DB
-}
-
-// ClaimQ represents helper struct to access row of 'claims'.
-type ClaimQ struct {
-	db *pgdb.DB
-}
-
-func (c ClaimQ) New() data.ClaimSchemaQ {
-	return NewClaimQ(c.db)
-}
-
-func (c ClaimQ) SchemaByActionTypeCtx(ctx context.Context, actionType string) (*data.ClaimSchema, error) {
-	// query
-	sqlstr := `SELECT * FROM claims_schemas WHERE action_type = $1`
-	// run
-	var result data.ClaimSchema
-	err := c.db.GetRawContext(ctx, &result, sqlstr, actionType)
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
-	return &result, errors.Wrap(err, "failed to execute select query")
-}
-
-// NewClaimQ  - creates new instance
-func NewClaimQ(db *pgdb.DB) ClaimQ {
-	return ClaimQ{
-		db,
-	}
-}
-
-func (s *Storage) ClaimSchemaQ() data.ClaimSchemaQ {
-	return NewClaimQ(s.DB())
 }
 
 // New - returns new instance of storage
@@ -71,6 +39,97 @@ func (s *Storage) Clone() data.Storage {
 // Transaction begins a transaction on repo.
 func (s *Storage) Transaction(tx func() error) error {
 	return s.db.Transaction(tx)
+} // ClaimsSchemaQ represents helper struct to access row of 'claims_schemas'.
+type ClaimsSchemaQ struct {
+	db *pgdb.DB
+}
+
+// NewClaimsSchemaQ  - creates new instance
+func NewClaimsSchemaQ(db *pgdb.DB) ClaimsSchemaQ {
+	return ClaimsSchemaQ{
+		db,
+	}
+}
+
+// ClaimsSchemaQ  - creates new instance of ClaimsSchemaQ
+func (s Storage) ClaimsSchemaQ() data.ClaimsSchemaQ {
+	return NewClaimsSchemaQ(s.DB())
+}
+
+var colsClaimsSchema = `id, action_type, schema_type, schema_url, created_at, updated_at`
+
+// InsertCtx inserts a ClaimsSchema to the database.
+func (q ClaimsSchemaQ) InsertCtx(ctx context.Context, cs *data.ClaimsSchema) error {
+	// sql insert query, primary key must be provided
+	sqlstr := `INSERT INTO public.claims_schemas (` +
+		`id, action_type, schema_type, schema_url, created_at, updated_at` +
+		`) VALUES (` +
+		`$1, $2, $3, $4, $5, $6` +
+		`)`
+	// run
+	err := q.db.ExecRawContext(ctx, sqlstr, cs.ID, cs.ActionType, cs.SchemaType, cs.SchemaURL, cs.CreatedAt, cs.UpdatedAt)
+	return errors.Wrap(err, "failed to execute insert query")
+}
+
+// Insert insert a ClaimsSchema to the database.
+func (q ClaimsSchemaQ) Insert(cs *data.ClaimsSchema) error {
+	return q.InsertCtx(context.Background(), cs)
+}
+
+// UpdateCtx updates a ClaimsSchema in the database.
+func (q ClaimsSchemaQ) UpdateCtx(ctx context.Context, cs *data.ClaimsSchema) error {
+	// update with composite primary key
+	sqlstr := `UPDATE public.claims_schemas SET ` +
+		`action_type = $1, schema_type = $2, schema_url = $3, updated_at = $4 ` +
+		`WHERE id = $5`
+	// run
+	err := q.db.ExecRawContext(ctx, sqlstr, cs.ActionType, cs.SchemaType, cs.SchemaURL, cs.UpdatedAt, cs.ID)
+	return errors.Wrap(err, "failed to execute update")
+}
+
+// Update updates a ClaimsSchema in the database.
+func (q ClaimsSchemaQ) Update(cs *data.ClaimsSchema) error {
+	return q.UpdateCtx(context.Background(), cs)
+}
+
+// UpsertCtx performs an upsert for ClaimsSchema.
+func (q ClaimsSchemaQ) UpsertCtx(ctx context.Context, cs *data.ClaimsSchema) error {
+	// upsert
+	sqlstr := `INSERT INTO public.claims_schemas (` +
+		`id, action_type, schema_type, schema_url, created_at, updated_at` +
+		`) VALUES (` +
+		`$1, $2, $3, $4, $5, $6` +
+		`)` +
+		` ON CONFLICT (id) DO ` +
+		`UPDATE SET ` +
+		`action_type = EXCLUDED.action_type, schema_type = EXCLUDED.schema_type, schema_url = EXCLUDED.schema_url, updated_at = EXCLUDED.updated_at `
+	// run
+	if err := q.db.ExecRawContext(ctx, sqlstr, cs.ID, cs.ActionType, cs.SchemaType, cs.SchemaURL, cs.CreatedAt, cs.UpdatedAt); err != nil {
+		return errors.Wrap(err, "failed to execute upsert stmt")
+	}
+	return nil
+}
+
+// Upsert performs an upsert for ClaimsSchema.
+func (q ClaimsSchemaQ) Upsert(cs *data.ClaimsSchema) error {
+	return q.UpsertCtx(context.Background(), cs)
+}
+
+// DeleteCtx deletes the ClaimsSchema from the database.
+func (q ClaimsSchemaQ) DeleteCtx(ctx context.Context, cs *data.ClaimsSchema) error {
+	// delete with single primary key
+	sqlstr := `DELETE FROM public.claims_schemas ` +
+		`WHERE id = $1`
+	// run
+	if err := q.db.ExecRawContext(ctx, sqlstr, cs.ID); err != nil {
+		return errors.Wrap(err, "failed to exec delete stmt")
+	}
+	return nil
+}
+
+// Delete deletes the ClaimsSchema from the database.
+func (q ClaimsSchemaQ) Delete(cs *data.ClaimsSchema) error {
+	return q.DeleteCtx(context.Background(), cs)
 } // EmailInvitationQ represents helper struct to access row of 'email_invitations'.
 type EmailInvitationQ struct {
 	db *pgdb.DB
@@ -543,18 +602,18 @@ func (s Storage) RequestQ() data.RequestQ {
 	return NewRequestQ(s.DB())
 }
 
-var colsRequest = `id, org_id, group_id, user_did, metadata, status, created_at, updated_at`
+var colsRequest = `id, org_id, group_id, user_did, credentials_requests, status, created_at, updated_at`
 
 // InsertCtx inserts a Request to the database.
 func (q RequestQ) InsertCtx(ctx context.Context, r *data.Request) error {
 	// sql insert query, primary key must be provided
 	sqlstr := `INSERT INTO public.requests (` +
-		`id, org_id, group_id, user_did, metadata, status, created_at, updated_at` +
+		`id, org_id, group_id, user_did, credentials_requests, status, created_at, updated_at` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6, $7, $8` +
 		`)`
 	// run
-	err := q.db.ExecRawContext(ctx, sqlstr, r.ID, r.OrgID, r.GroupID, r.UserDid, r.Metadata, r.Status, r.CreatedAt, r.UpdatedAt)
+	err := q.db.ExecRawContext(ctx, sqlstr, r.ID, r.OrgID, r.GroupID, r.UserDid, r.CredentialsRequests, r.Status, r.CreatedAt, r.UpdatedAt)
 	return errors.Wrap(err, "failed to execute insert query")
 }
 
@@ -567,10 +626,10 @@ func (q RequestQ) Insert(r *data.Request) error {
 func (q RequestQ) UpdateCtx(ctx context.Context, r *data.Request) error {
 	// update with composite primary key
 	sqlstr := `UPDATE public.requests SET ` +
-		`org_id = $1, group_id = $2, user_did = $3, metadata = $4, status = $5, updated_at = $6 ` +
+		`org_id = $1, group_id = $2, user_did = $3, credentials_requests = $4, status = $5, updated_at = $6 ` +
 		`WHERE id = $7`
 	// run
-	err := q.db.ExecRawContext(ctx, sqlstr, r.OrgID, r.GroupID, r.UserDid, r.Metadata, r.Status, r.UpdatedAt, r.ID)
+	err := q.db.ExecRawContext(ctx, sqlstr, r.OrgID, r.GroupID, r.UserDid, r.CredentialsRequests, r.Status, r.UpdatedAt, r.ID)
 	return errors.Wrap(err, "failed to execute update")
 }
 
@@ -583,15 +642,15 @@ func (q RequestQ) Update(r *data.Request) error {
 func (q RequestQ) UpsertCtx(ctx context.Context, r *data.Request) error {
 	// upsert
 	sqlstr := `INSERT INTO public.requests (` +
-		`id, org_id, group_id, user_did, metadata, status, created_at, updated_at` +
+		`id, org_id, group_id, user_did, credentials_requests, status, created_at, updated_at` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6, $7, $8` +
 		`)` +
 		` ON CONFLICT (id) DO ` +
 		`UPDATE SET ` +
-		`org_id = EXCLUDED.org_id, group_id = EXCLUDED.group_id, user_did = EXCLUDED.user_did, metadata = EXCLUDED.metadata, status = EXCLUDED.status, updated_at = EXCLUDED.updated_at `
+		`org_id = EXCLUDED.org_id, group_id = EXCLUDED.group_id, user_did = EXCLUDED.user_did, credentials_requests = EXCLUDED.credentials_requests, status = EXCLUDED.status, updated_at = EXCLUDED.updated_at `
 	// run
-	if err := q.db.ExecRawContext(ctx, sqlstr, r.ID, r.OrgID, r.GroupID, r.UserDid, r.Metadata, r.Status, r.CreatedAt, r.UpdatedAt); err != nil {
+	if err := q.db.ExecRawContext(ctx, sqlstr, r.ID, r.OrgID, r.GroupID, r.UserDid, r.CredentialsRequests, r.Status, r.CreatedAt, r.UpdatedAt); err != nil {
 		return errors.Wrap(err, "failed to execute upsert stmt")
 	}
 	return nil
@@ -708,6 +767,39 @@ func (q UserQ) DeleteCtx(ctx context.Context, u *data.User) error {
 // Delete deletes the User from the database.
 func (q UserQ) Delete(u *data.User) error {
 	return q.DeleteCtx(context.Background(), u)
+}
+
+// ClaimsSchemaByIDCtx retrieves a row from 'public.claims_schemas' as a ClaimsSchema.
+//
+// Generated from index 'claims_schemas_pkey'.
+func (q ClaimsSchemaQ) ClaimsSchemaByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*data.ClaimsSchema, error) {
+	// query
+	sqlstr := `SELECT ` +
+		`id, action_type, schema_type, schema_url, created_at, updated_at ` +
+		`FROM public.claims_schemas ` +
+		`WHERE id = $1`
+	// run
+	if isForUpdate {
+		sqlstr += " for update"
+	}
+	var res data.ClaimsSchema
+	err := q.db.GetRawContext(ctx, &res, sqlstr, id)
+	if err != nil {
+		if errors.Cause(err) == sql.ErrNoRows {
+			return nil, nil
+		}
+
+		return nil, errors.Wrap(err, "failed to exec select")
+	}
+
+	return &res, nil
+}
+
+// ClaimsSchemaByID retrieves a row from 'public.claims_schemas' as a ClaimsSchema.
+//
+// Generated from index 'claims_schemas_pkey'.
+func (q ClaimsSchemaQ) ClaimsSchemaByID(id uuid.UUID, isForUpdate bool) (*data.ClaimsSchema, error) {
+	return q.ClaimsSchemaByIDCtx(context.Background(), id, isForUpdate)
 }
 
 // EmailInvitationsByGroupIDCtx retrieves a row from 'public.email_invitations' as a EmailInvitation.
@@ -1084,7 +1176,7 @@ func (q OrganizationQ) OrganizationByID(id uuid.UUID, isForUpdate bool) (*data.O
 func (q RequestQ) RequestsByGroupIDCtx(ctx context.Context, groupID uuid.UUID, isForUpdate bool) ([]data.Request, error) {
 	// query
 	sqlstr := `SELECT ` +
-		`id, org_id, group_id, user_did, metadata, status, created_at, updated_at ` +
+		`id, org_id, group_id, user_did, credentials_requests, status, created_at, updated_at ` +
 		`FROM public.requests ` +
 		`WHERE group_id = $1`
 	// run
@@ -1113,7 +1205,7 @@ func (q RequestQ) RequestsByGroupID(groupID uuid.UUID, isForUpdate bool) ([]data
 func (q RequestQ) RequestsByOrgIDCtx(ctx context.Context, orgID uuid.UUID, isForUpdate bool) ([]data.Request, error) {
 	// query
 	sqlstr := `SELECT ` +
-		`id, org_id, group_id, user_did, metadata, status, created_at, updated_at ` +
+		`id, org_id, group_id, user_did, credentials_requests, status, created_at, updated_at ` +
 		`FROM public.requests ` +
 		`WHERE org_id = $1`
 	// run
@@ -1142,7 +1234,7 @@ func (q RequestQ) RequestsByOrgID(orgID uuid.UUID, isForUpdate bool) ([]data.Req
 func (q RequestQ) RequestByIDCtx(ctx context.Context, id uuid.UUID, isForUpdate bool) (*data.Request, error) {
 	// query
 	sqlstr := `SELECT ` +
-		`id, org_id, group_id, user_did, metadata, status, created_at, updated_at ` +
+		`id, org_id, group_id, user_did, credentials_requests, status, created_at, updated_at ` +
 		`FROM public.requests ` +
 		`WHERE id = $1`
 	// run
@@ -1175,7 +1267,7 @@ func (q RequestQ) RequestByID(id uuid.UUID, isForUpdate bool) (*data.Request, er
 func (q RequestQ) RequestsByUserDidCtx(ctx context.Context, userDid sql.NullString, isForUpdate bool) ([]data.Request, error) {
 	// query
 	sqlstr := `SELECT ` +
-		`id, org_id, group_id, user_did, metadata, status, created_at, updated_at ` +
+		`id, org_id, group_id, user_did, credentials_requests, status, created_at, updated_at ` +
 		`FROM public.requests ` +
 		`WHERE user_did = $1`
 	// run

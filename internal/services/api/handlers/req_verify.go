@@ -2,17 +2,17 @@ package handlers
 
 import (
 	"encoding/json"
+	"net/http"
+	"time"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
 	"github.com/rarimo/rarime-orgs-svc/internal/data"
 	"github.com/rarimo/rarime-orgs-svc/resources"
-	"github.com/rarimo/xo/types/xo"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
-	"net/http"
-	"time"
 )
 
 func newReqVerifyRequest(r *http.Request) (*resources.RequestVerifyRequest, error) {
@@ -32,19 +32,9 @@ func newReqVerifyRequest(r *http.Request) (*resources.RequestVerifyRequest, erro
 	if !req.Data.Attributes.Approved {
 		return &req, nil
 	}
-	if req.Data.Attributes.Metadata == nil {
-		return nil, validation.Errors{
-			"data/attributes/metadata": errors.New("metadata is required for approved request"),
-		}
-	}
-	if req.Data.Attributes.Role == nil {
+	if req.Data.Attributes.Role == "" {
 		return nil, validation.Errors{
 			"data/attributes/role": errors.New("role is required for approved request"),
-		}
-	}
-	if valid := json.Valid(*req.Data.Attributes.Metadata); !valid {
-		return nil, validation.Errors{
-			"data/attributes/metadata": errors.New("invalid request metadata json"),
 		}
 	}
 
@@ -83,7 +73,6 @@ func RequestVerify(w http.ResponseWriter, r *http.Request) {
 
 	if req.Data.Attributes.Approved {
 		request.Status = resources.RequestStatus_Approved.Int16()
-		request.Metadata = xo.Jsonb(*req.Data.Attributes.Metadata)
 	}
 
 	user, err := Storage(r).UserQ().UserByDidCtx(r.Context(), request.UserDid.String)
@@ -115,7 +104,7 @@ func RequestVerify(w http.ResponseWriter, r *http.Request) {
 			ID:        uuid.New(),
 			GroupID:   request.GroupID,
 			UserID:    user.ID,
-			Role:      resources.GroupUserRoleFromString(*req.Data.Attributes.Role).Int16(),
+			Role:      resources.GroupUserRoleFromString(req.Data.Attributes.Role).Int16(),
 			CreatedAt: time.Now().UTC(),
 			UpdatedAt: time.Now().UTC(),
 		}
@@ -136,10 +125,20 @@ func RequestVerify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: add logic for change request status to submitted if it was approved
+	// TODO: add logic for:
+	//  - updating request's credential requests (adding role credential request, updating metadata credential field (representing style))
+	//  - claims issuing based on request's credential requests;
+	//  - change request status to submitted if it was approved and claims were issued (via runner).
+
+	populatedRequest, err := populateRequest(*request)
+	if err != nil {
+		Log(r).WithError(err).Error("failed to populate request")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
 
 	ape.Render(w, resources.RequestResponse{
-		Data:     populateRequest(*request),
+		Data:     populatedRequest,
 		Included: resources.Included{},
 	})
 }

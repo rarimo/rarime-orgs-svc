@@ -9,7 +9,6 @@ import (
 	"github.com/rarimo/rarime-orgs-svc/internal/data"
 	"github.com/rarimo/rarime-orgs-svc/internal/notificator"
 	"github.com/rarimo/rarime-orgs-svc/resources"
-	"github.com/rarimo/xo/types/xo"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 	"gitlab.com/distributed_lab/logan/v3"
@@ -93,7 +92,8 @@ func InvitationEmailCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Data.Attributes.Rules != nil {
-		request.Metadata = xo.Jsonb(*req.Data.Attributes.Rules)
+		// TODO specify rules
+		//request.Metadata = xo.Jsonb(*req.Data.Attributes.Rules)
 	}
 
 	inv := data.EmailInvitation{
@@ -159,7 +159,12 @@ func InvitationEmailCreate(w http.ResponseWriter, r *http.Request) {
 		Data:     populateInvitationEmail(inv),
 		Included: resources.Included{},
 	}
-	respRequest := populateRequest(request)
+	respRequest, err := populateRequest(request)
+	if err != nil {
+		Log(r).WithError(err).Error("failed to populate request")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
 	resp.Included.Add(&respRequest)
 
 	ape.Render(w, resp)
@@ -189,19 +194,24 @@ func populateInvitationEmail(invite data.EmailInvitation) resources.InvitationEm
 	}
 }
 
-func populateRequest(request data.Request) resources.Request {
+func populateRequest(request data.Request) (resources.Request, error) {
+	credentialRequests := make([]resources.CredentialRequest, 0)
+	if err := json.Unmarshal(request.CredentialsRequests, &credentialRequests); err != nil {
+		return resources.Request{}, errors.Wrap(err, "failed to scan request metadata to credential requests")
+	}
+
 	req := resources.Request{
 		Key: resources.Key{
 			ID:   request.ID.String(),
 			Type: resources.REQUESTS,
 		},
 		Attributes: resources.RequestAttributes{
-			GroupId:   request.GroupID.String(),
-			OrgId:     request.OrgID.String(),
-			Metadata:  json.RawMessage(request.Metadata),
-			Status:    resources.RequestStatus(request.Status),
-			UpdatedAt: request.UpdatedAt,
-			CreatedAt: request.CreatedAt,
+			GroupId:            request.GroupID.String(),
+			OrgId:              request.OrgID.String(),
+			CredentialRequests: credentialRequests,
+			Status:             resources.RequestStatus(request.Status),
+			UpdatedAt:          request.UpdatedAt,
+			CreatedAt:          request.CreatedAt,
 		},
 		Relationships: &resources.RequestRelationships{
 			Group: &resources.Relation{
@@ -223,5 +233,5 @@ func populateRequest(request data.Request) resources.Request {
 		req.Attributes.UserDid = &request.UserDid.String
 	}
 
-	return req
+	return req, nil
 }

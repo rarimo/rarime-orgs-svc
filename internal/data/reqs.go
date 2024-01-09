@@ -3,10 +3,11 @@ package data
 import (
 	"crypto/rand"
 	"fmt"
-	"github.com/google/uuid"
-	"gitlab.com/distributed_lab/kit/pgdb"
 	"math"
 	"math/big"
+
+	"github.com/google/uuid"
+	"gitlab.com/distributed_lab/kit/pgdb"
 
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )

@@ -28,7 +28,8 @@ allOf:
             format: json.RawMessage
             description: JSON object containing the metadata information of the organization
             example:
-              $ref: '#/components/examples/organizationMetadata'
+              name: "Organization Name"
+              description: "Organization Description"
           status:
             allOf:
               - $ref: '#/components/schemas/Enum'

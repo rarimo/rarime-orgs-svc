@@ -107,7 +107,13 @@ func RequestList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, request := range requests {
-		resp.Data = append(resp.Data, populateRequest(request))
+		populatedRequest, err := populateRequest(request)
+		if err != nil {
+			Log(r).WithError(err).Error("failed to populate request")
+			ape.RenderErr(w, problems.InternalError())
+			return
+		}
+		resp.Data = append(resp.Data, populatedRequest)
 	}
 
 	cursor := req.PageCursor + req.PageLimit

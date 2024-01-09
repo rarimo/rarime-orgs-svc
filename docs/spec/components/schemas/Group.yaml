@@ -21,13 +21,15 @@ allOf:
             format: json.RawMessage
             description: JSON object containing the metadata information of the group
             example:
-              $ref: '#/components/examples/groupMetadata'
+              name: "Group Name"
+              description: "Group description"
           rules:
             type: object
             format: json.RawMessage
             description: JSON object containing the rules of the group, which will be used to generate claims for the group members
             example:
-              $ref: '#/components/examples/groupRules'
+              - scheme: "https://ipfs.io/ipfs/QmZTR5bcpQD7cFgTorqxZDYaew1Wqgfbd2ud9QqGPAkK2V"
+                required: true
           created_at:
             type: string
             format: time.Time

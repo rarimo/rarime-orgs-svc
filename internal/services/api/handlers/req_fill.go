@@ -2,16 +2,16 @@ package handlers
 
 import (
 	"encoding/json"
+	"net/http"
+	"time"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
 	"github.com/rarimo/rarime-orgs-svc/resources"
-	"github.com/rarimo/xo/types/xo"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
-	"net/http"
-	"time"
 )
 
 func newReqFillRequest(r *http.Request) (*resources.RequestFillRequest, error) {
@@ -19,12 +19,6 @@ func newReqFillRequest(r *http.Request) (*resources.RequestFillRequest, error) {
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(err, "failed to decode body")
-	}
-
-	if valid := json.Valid(req.Data.Attributes.Metadata); !valid {
-		return nil, validation.Errors{
-			"data/attributes/metadata": errors.New("invalid request metadata json"),
-		}
 	}
 
 	id, err := reqIDFromRequest(r)
@@ -65,7 +59,13 @@ func RequestFill(w http.ResponseWriter, r *http.Request) {
 	}
 
 	request.Status = resources.RequestStatus_Filled.Int16()
-	request.Metadata = xo.Jsonb(req.Data.Attributes.Metadata)
+
+	credentialRequestsJSON, err := json.Marshal(req.Data.Attributes.CredentialRequests)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to marshal credential requests"))
+	}
+
+	request.CredentialsRequests = credentialRequestsJSON
 	request.UpdatedAt = time.Now().UTC()
 
 	if err := Storage(r).RequestQ().UpdateCtx(r.Context(), request); err != nil {
@@ -74,8 +74,15 @@ func RequestFill(w http.ResponseWriter, r *http.Request) {
 		}))
 	}
 
+	respRequest, err := populateRequest(*request)
+	if err != nil {
+		Log(r).WithError(err).Error("failed to populate request")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
 	ape.Render(w, resources.RequestResponse{
-		Data:     populateRequest(*request),
+		Data:     respRequest,
 		Included: resources.Included{},
 	})
 }

@@ -18,7 +18,7 @@ type Storage interface {
 	OrganizationQ() OrganizationQ
 	RequestQ() RequestQ
 	UserQ() UserQ
-	ClaimSchemaQ() ClaimSchemaQ
+	ClaimsSchemaQ() ClaimsSchemaQ
 }
 
 type EmailInvitationQ interface {
@@ -62,7 +62,6 @@ type UserQ interface {
 type GorpMigrationQ interface {
 }
 
-type ClaimSchemaQ interface {
-	New() ClaimSchemaQ
-	SchemaByActionTypeCtx(ctx context.Context, actionType string) (*ClaimSchema, error)
+type ClaimsSchemaQ interface {
+	SelectCtx(ctx context.Context, selector ClaimsSchemasSelector) ([]ClaimsSchema, error)
 }
