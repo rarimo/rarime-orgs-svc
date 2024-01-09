@@ -4,9 +4,7 @@
 
 package resources
 
-import "encoding/json"
-
 type RequestFillAttributes struct {
-	// JSON object containing the metadata information of the request
-	Metadata json.RawMessage `json:"metadata"`
+	// Credential requests to an issuer
+	CredentialRequests []CredentialRequest `json:"credential_requests"`
 }

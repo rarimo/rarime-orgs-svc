@@ -8,6 +8,10 @@ allOf:
       attributes:
         required:
           - approved
+          - activation_date
+          - expiration_date
+          - role
+          - metadata
         type: object
         properties:
           approved:
@@ -18,12 +22,20 @@ allOf:
               `true` – The verification request was approved.
 
               `false` – The verification request was rejected. In that case `metadata` and `role` fields could be empty.
+          activation_date:
+            type: string
+            format: time.Time
+            description: The time (UTC) when claims will be issued
+            example: "2021-08-15T13:00:00Z"
+          expiration_date:
+            type: string
+            format: time.Time
+            description: The time (UTC) when claims expire
+            example: "2021-08-15T13:00:00Z"
           metadata:
             type: object
             format: json.RawMessage
-            description: JSON object containing the metadata information of the request
-            example:
-              $ref: '#/components/examples/requestMetadata'
+            description: JSON object containing the metadata (background, name, etc) information of the request
           role:
             type: string
             description: >

@@ -7,12 +7,11 @@ allOf:
     properties:
       attributes:
         required:
-          - metadata
+          - credential_requests
         type: object
         properties:
-          metadata:
-            type: object
-            format: json.RawMessage
-            description: JSON object containing the metadata information of the request
-            example:
-              $ref: '#/components/examples/requestMetadata'
+          credential_requests:
+            type: array
+            description: Credential requests to an issuer
+            items:
+              $ref: '#/components/schemas/CredentialRequest'
