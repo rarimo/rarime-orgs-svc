@@ -64,7 +64,18 @@ func (ss StringSlice) Value() (driver.Value, error) {
 		v[i] = `"` + strings.Replace(strings.Replace(s, `\`, `\\\`, -1), `"`, `\"`, -1) + `"`
 	}
 	return "{" + strings.Join(v, ",") + "}", nil
-} // EmailInvitation represents a row from 'public.email_invitations'.
+} // ClaimsSchema represents a row from 'public.claims_schemas'.
+type ClaimsSchema struct {
+	ID         uuid.UUID `db:"id" json:"id" structs:"-"`                             // id
+	ActionType string    `db:"action_type" json:"action_type" structs:"action_type"` // action_type
+	SchemaType string    `db:"schema_type" json:"schema_type" structs:"schema_type"` // schema_type
+	SchemaURL  string    `db:"schema_url" json:"schema_url" structs:"schema_url"`    // schema_url
+	CreatedAt  time.Time `db:"created_at" json:"created_at" structs:"created_at"`    // created_at
+	UpdatedAt  time.Time `db:"updated_at" json:"updated_at" structs:"updated_at"`    // updated_at
+
+}
+
+// EmailInvitation represents a row from 'public.email_invitations'.
 type EmailInvitation struct {
 	ID        uuid.UUID `db:"id" json:"id" structs:"-"`                          // id
 	ReqID     uuid.UUID `db:"req_id" json:"req_id" structs:"req_id"`             // req_id
@@ -117,18 +128,19 @@ type Organization struct {
 	MembersCount      int            `db:"members_count" json:"members_count" structs:"members_count"`                   // members_count
 	CreatedAt         time.Time      `db:"created_at" json:"created_at" structs:"created_at"`                            // created_at
 	UpdatedAt         time.Time      `db:"updated_at" json:"updated_at" structs:"updated_at"`                            // updated_at
+
 }
 
 // Request represents a row from 'public.requests'.
 type Request struct {
-	ID        uuid.UUID      `db:"id" json:"id" structs:"-"`                          // id
-	OrgID     uuid.UUID      `db:"org_id" json:"org_id" structs:"org_id"`             // org_id
-	GroupID   uuid.UUID      `db:"group_id" json:"group_id" structs:"group_id"`       // group_id
-	UserDid   sql.NullString `db:"user_did" json:"user_did" structs:"user_did"`       // user_did
-	Metadata  xo.Jsonb       `db:"metadata" json:"metadata" structs:"metadata"`       // metadata
-	Status    int16          `db:"status" json:"status" structs:"status"`             // status
-	CreatedAt time.Time      `db:"created_at" json:"created_at" structs:"created_at"` // created_at
-	UpdatedAt time.Time      `db:"updated_at" json:"updated_at" structs:"updated_at"` // updated_at
+	ID                  uuid.UUID      `db:"id" json:"id" structs:"-"`                                                        // id
+	OrgID               uuid.UUID      `db:"org_id" json:"org_id" structs:"org_id"`                                           // org_id
+	GroupID             uuid.UUID      `db:"group_id" json:"group_id" structs:"group_id"`                                     // group_id
+	UserDid             sql.NullString `db:"user_did" json:"user_did" structs:"user_did"`                                     // user_did
+	CredentialsRequests xo.Jsonb       `db:"credentials_requests" json:"credentials_requests" structs:"credentials_requests"` // credentials_requests
+	Status              int16          `db:"status" json:"status" structs:"status"`                                           // status
+	CreatedAt           time.Time      `db:"created_at" json:"created_at" structs:"created_at"`                               // created_at
+	UpdatedAt           time.Time      `db:"updated_at" json:"updated_at" structs:"updated_at"`                               // updated_at
 
 }
 
@@ -141,14 +153,4 @@ type User struct {
 	CreatedAt time.Time `db:"created_at" json:"created_at" structs:"created_at"` // created_at
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at" structs:"updated_at"` // updated_at
 
-}
-
-// ClaimSchema represents a row from 'public.claims_schemas'.
-type ClaimSchema struct {
-	ID        uuid.UUID `db:"id" json:"id" structs:"-"`                          // id
-	ActionType string    `db:"action_type" json:"action_type" structs:"action_type"` // action_type
-	SchemaType string    `db:"schema_type" json:"schema_type" structs:"schema_type"` // schema_type
-	SchemaUrl    string  `db:"schema_url" json:"schema_url" structs:"schema_url"`             // schema
-	CreatedAt time.Time `db:"created_at" json:"created_at" structs:"created_at"` // created_at
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at" structs:"updated_at"` // updated_at
 }

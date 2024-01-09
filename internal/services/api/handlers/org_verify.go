@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
+	"github.com/rarimo/rarime-orgs-svc/internal/data"
 	"github.com/rarimo/rarime-orgs-svc/internal/services/core/issuer"
 	"github.com/rarimo/rarime-orgs-svc/internal/services/core/issuer/models"
 	"github.com/rarimo/rarime-orgs-svc/resources"
@@ -75,24 +76,27 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 	credentialSubject.IdentityID = user.Did
 	credentialSubject.Domain = org.Domain
 
-	schema, err := Storage(r).ClaimSchemaQ().SchemaByActionTypeCtx(r.Context(), issuer.DomainOwnershipActionType)
+	actionType := issuer.DomainOwnershipActionType
+	schema, err := Storage(r).ClaimsSchemaQ().SelectCtx(r.Context(), data.ClaimsSchemasSelector{
+		ActionType: &actionType,
+	})
 
 	if err != nil {
 		panic(errors.Wrap(err, "failed to get schema by action type", logan.F{
 			"action_type": issuer.DomainOwnershipActionType,
 		}))
 	}
-	if schema == nil {
+	if len(schema) == 0 {
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
-	iss := issuer.New(Log(r), &cfgIssuer, schema.SchemaType, schema.SchemaUrl)
+	iss := issuer.New(Log(r), &cfgIssuer, schema[0].SchemaType, schema[0].SchemaURL)
 
 	credentialReq := models.DomainOwnershipCredentialRequest{
-		CredentialSchema:  schema.SchemaUrl,
+		CredentialSchema:  schema[0].SchemaURL,
 		CredentialSubject: credentialSubject,
-		Type:              schema.SchemaType,
+		Type:              schema[0].SchemaType,
 	}
 
 	claim, err := iss.IssueClaim(user.Did, credentialReq)
@@ -132,7 +136,7 @@ func OrgVerify(w http.ResponseWriter, r *http.Request) {
 	claimOffer := resources.ClaimOffer{
 		Key: resources.Key{
 			ID:   credentialSubject.IdentityID,
-			Type: resources.ResourceType(schema.SchemaType),
+			Type: resources.ResourceType(schema[0].SchemaType),
 		},
 	}
 	inc.Add(claimOffer.GetKeyP())

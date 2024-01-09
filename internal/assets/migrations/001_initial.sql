@@ -77,14 +77,14 @@ execute function trigger_set_updated_at();
 
 create table if not exists requests
 (
-    id         uuid primary key                     default gen_random_uuid(),
-    org_id     uuid                        not null,
-    group_id   uuid                        not null,
-    user_did   text,
-    metadata   jsonb                       not null default '{}'::jsonb,
-    status     smallint                    not null default 0,
-    created_at timestamp without time zone not null default now(),
-    updated_at timestamp without time zone not null default now()
+    id                   uuid primary key                     default gen_random_uuid(),
+    org_id               uuid                        not null,
+    group_id             uuid                        not null,
+    user_did             text,
+    credentials_requests jsonb                       not null default '{}'::jsonb,
+    status               smallint                    not null default 0,
+    created_at           timestamp without time zone not null default now(),
+    updated_at           timestamp without time zone not null default now()
 );
 
 create index if not exists requests_organization_index on requests using btree (org_id);

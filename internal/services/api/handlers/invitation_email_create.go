@@ -9,7 +9,6 @@ import (
 	"github.com/rarimo/rarime-orgs-svc/internal/data"
 	"github.com/rarimo/rarime-orgs-svc/internal/notificator"
 	"github.com/rarimo/rarime-orgs-svc/resources"
-	"github.com/rarimo/xo/types/xo"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 	"gitlab.com/distributed_lab/logan/v3"
@@ -93,7 +92,8 @@ func InvitationEmailCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Data.Attributes.Rules != nil {
-		request.Metadata = xo.Jsonb(*req.Data.Attributes.Rules)
+		// TODO specify rules
+		//request.Metadata = xo.Jsonb(*req.Data.Attributes.Rules)
 	}
 
 	inv := data.EmailInvitation{
@@ -196,7 +196,7 @@ func populateInvitationEmail(invite data.EmailInvitation) resources.InvitationEm
 
 func populateRequest(request data.Request) (resources.Request, error) {
 	credentialRequests := make([]resources.CredentialRequest, 0)
-	if err := json.Unmarshal(request.Metadata, &credentialRequests); err != nil {
+	if err := json.Unmarshal(request.CredentialsRequests, &credentialRequests); err != nil {
 		return resources.Request{}, errors.Wrap(err, "failed to scan request metadata to credential requests")
 	}
 

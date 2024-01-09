@@ -65,7 +65,7 @@ func RequestFill(w http.ResponseWriter, r *http.Request) {
 		panic(errors.Wrap(err, "failed to marshal credential requests"))
 	}
 
-	request.Metadata = credentialRequestsJSON
+	request.CredentialsRequests = credentialRequestsJSON
 	request.UpdatedAt = time.Now().UTC()
 
 	if err := Storage(r).RequestQ().UpdateCtx(r.Context(), request); err != nil {
